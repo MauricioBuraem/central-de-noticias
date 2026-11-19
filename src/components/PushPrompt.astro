@@ -9,7 +9,7 @@ import { CONTACT, SUPABASE, VAPID_PUBLIC_KEY } from "../lib/config";
     <p class="push-s" data-push-text>Ative os alertas e receba as notícias urgentes de Embu, Taboão, Itapecerica e Zona Sul no celular.</p>
     <div class="push-b">
       <button type="button" class="btn btn-sirene" data-push-yes>Ativar alertas</button>
-      <a class="btn btn-whats" data-push-wa hidden href={CONTACT.whatsappGroup} target="_blank" rel="noopener"><Icon name="whatsapp" />Entrar no grupo</a>
+      <a class="btn btn-whats" data-push-wa hidden href={CONTACT.whatsappChannel} target="_blank" rel="noopener"><Icon name="whatsapp" />Seguir o canal</a>
       <button type="button" class="btn btn-ghost" data-push-no>Agora não</button>
     </div>
   </div>
@@ -57,7 +57,7 @@ import { CONTACT, SUPABASE, VAPID_PUBLIC_KEY } from "../lib/config";
       box.querySelector("[data-push-yes]")?.setAttribute("hidden", "");
       box.querySelector("[data-push-wa]")?.removeAttribute("hidden");
       const t = box.querySelector("[data-push-text]");
-      if (t) t.textContent = "Entre no grupo da Central no WhatsApp e receba as notícias urgentes da região.";
+      if (t) t.textContent = "Siga o canal da Central no WhatsApp e receba as notícias urgentes da região.";
     }
     box.hidden = false;
     requestAnimationFrame(() => box.classList.add("in"));

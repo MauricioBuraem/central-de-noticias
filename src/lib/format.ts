@@ -37,6 +37,23 @@ export function img(path: string | null | undefined, w: number, h?: number, q = 
   return `/.netlify/images?${p.toString()}`;
 }
 
+/** Crop anchor that keeps the headline balloon of the cover inside the card. */
+// `boxRatio` is the card's width/height (16/9, 4/3, 1...). The crop window is moved so the
+// balloon's center lands in the middle of the card, without running past the image edges.
+export function focusStyle(
+  p: { cover_focus?: number | null; cover_width?: number | null; cover_height?: number | null },
+  boxRatio = 16 / 9,
+): string {
+  const w = p.cover_width ?? 0;
+  const h = p.cover_height ?? 0;
+  if (!w || !h) return "";
+  const visible = w / boxRatio / h; // share of the image height that fits in the card
+  if (visible >= 1) return "";
+  const focus = p.cover_focus ?? (h > w * 1.05 ? 0.4 : 0.5);
+  const top = Math.min(Math.max(focus - visible / 2, 0), 1 - visible);
+  return `object-position:50% ${((top / (1 - visible)) * 100).toFixed(1)}%`;
+}
+
 export function srcset(path: string | null | undefined, widths: number[], ratio?: number): string {
   if (!path) return "";
   return widths.map((w) => `${img(path, w, ratio ? Math.round(w / ratio) : undefined)} ${w}w`).join(", ");

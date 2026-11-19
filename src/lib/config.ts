@@ -24,7 +24,7 @@ export const CONTACT = {
   whatsappNumber: WHATSAPP_NUMBER,
   whatsappDisplay: "(11) 91649-2207",
   whatsappGroup: "https://chat.whatsapp.com/IwlbvePi2xC8Jfy13D0brb",
-  whatsappChannel: "",
+  whatsappChannel: "https://whatsapp.com/channel/0029VbDvuk51HsptHs3Cgv0S",
   email: "contato@centraldenoticias24h.com",
   waLink: (text: string) => `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`,
 };
@@ -32,10 +32,10 @@ export const CONTACT = {
 export const SOCIAL: { key: string; label: string; url: string }[] = [
   { key: "instagram", label: "Instagram", url: "https://www.instagram.com/centraldenoticias24h/" },
   { key: "facebook", label: "Facebook", url: "" },
-  { key: "tiktok", label: "TikTok", url: "" },
+  { key: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@centraldenoticias24h" },
   { key: "youtube", label: "YouTube", url: "https://www.youtube.com/@CentralDeNoticias24h" },
   { key: "kwai", label: "Kwai", url: "" },
-  { key: "whatsapp", label: "Grupo no WhatsApp", url: "https://chat.whatsapp.com/IwlbvePi2xC8Jfy13D0brb" },
+  { key: "whatsapp", label: "Canal no WhatsApp", url: "https://whatsapp.com/channel/0029VbDvuk51HsptHs3Cgv0S" },
 ];
 
 export type CityKey = "embu" | "taboao" | "itapecerica" | "zona-sul" | "regiao";

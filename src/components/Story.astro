@@ -1,7 +1,7 @@
 ---
 import Icon from "./Icon.astro";
 import type { Card } from "../lib/db";
-import { categoryName, cityOf, img, postPath, srcset, timeAgo } from "../lib/format";
+import { categoryName, cityOf, focusStyle, img, postPath, srcset, timeAgo } from "../lib/format";
 
 interface Props {
   post: Card;
@@ -32,12 +32,13 @@ const w0 = shapes.widths[Math.min(1, shapes.widths.length - 1)];
     <div class={`ph ${ratioCls}`}>
       {post.cover_path && (
         <img
-          src={img(post.cover_path, w0, Math.round(w0 / shapes.ratio))}
-          srcset={srcset(post.cover_path, shapes.widths, shapes.ratio)}
+          src={img(post.cover_path, w0)}
+          srcset={srcset(post.cover_path, shapes.widths)}
           sizes={shapes.sizes}
           width={w0}
           height={Math.round(w0 / shapes.ratio)}
           alt={alt}
+          style={focusStyle(post, shapes.ratio)}
           loading={eager ? "eager" : "lazy"}
           fetchpriority={eager ? "high" : "auto"}
           decoding="async"

@@ -23,6 +23,7 @@ export type Post = {
   cover_path: string | null;
   cover_width: number | null;
   cover_height: number | null;
+  cover_focus: number | null;
   cover_alt: string | null;
   gallery: { path: string; width?: number; height?: number }[];
   ig_permalink: string | null;
@@ -36,10 +37,10 @@ export type Post = {
   views: number;
 };
 
-const CARD = "id, slug, title, subtitle, excerpt, city, category, cover_path, cover_width, cover_height, cover_alt, ig_media_type, is_breaking, pinned_until, published_at, updated_at, views";
+const CARD = "id, slug, title, subtitle, excerpt, city, category, cover_path, cover_width, cover_height, cover_focus, cover_alt, ig_media_type, is_breaking, pinned_until, published_at, updated_at, views";
 export type Card = Pick<
   Post,
-  | "id" | "slug" | "title" | "subtitle" | "excerpt" | "city" | "category" | "cover_path" | "cover_width" | "cover_height"
+  | "id" | "slug" | "title" | "subtitle" | "excerpt" | "city" | "category" | "cover_path" | "cover_width" | "cover_height" | "cover_focus"
   | "cover_alt" | "ig_media_type" | "is_breaking" | "pinned_until" | "published_at" | "updated_at" | "views"
 >;
 

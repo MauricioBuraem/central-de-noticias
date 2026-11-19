@@ -12,8 +12,8 @@ const { mostRead } = Astro.props;
   <AdSlot size="box" />
   <section class="box-whats">
     <p class="bw-t">A Central no seu WhatsApp</p>
-    <p class="bw-s">Mais de mil vizinhos já recebem as notícias da região direto no celular.</p>
-    <a class="btn btn-whats" href={CONTACT.whatsappGroup} target="_blank" rel="noopener"><Icon name="whatsapp" />Entrar no grupo</a>
+    <p class="bw-s">Siga o canal da Central e receba as notícias da região direto no celular.</p>
+    <a class="btn btn-whats" href={CONTACT.whatsappChannel} target="_blank" rel="noopener"><Icon name="whatsapp" />Seguir o canal</a>
   </section>
   <section class="box-envie">
     <p class="bw-t">Aconteceu perto de você?</p>
@@ -23,7 +23,7 @@ const { mostRead } = Astro.props;
   <section>
     <div class="sec-h"><h2>Siga a Central</h2></div>
     <ul class="follow">
-      {SOCIAL.filter((s) => s.url && s.key !== "whatsapp").map((s) => (
+      {SOCIAL.filter((s) => s.url).map((s) => (
         <li><a href={s.url} target="_blank" rel="noopener" class={`f-${s.key}`}><Icon name={s.key} size={22} />{s.label}</a></li>
       ))}
     </ul>
@@ -73,4 +73,5 @@ const { mostRead } = Astro.props;
   .f-youtube { color: #d4201b; }
   .f-facebook { color: #1b62d6; }
   .f-tiktok, .f-kwai { color: var(--tinta); }
+  .f-whatsapp { color: var(--whats-escuro); }
 </style>

@@ -9,7 +9,7 @@ interface Props {
   activeCity?: string;
 }
 const { isHome = false, activeCity } = Astro.props;
-const socials = SOCIAL.filter((s) => s.url && s.key !== "whatsapp");
+const socials = SOCIAL.filter((s) => s.url);
 const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educacao", "eventos", "esportes", "empregos"];
 ---
 <header class="site-header">
@@ -18,8 +18,8 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
       <span class="today">{todayLong()}</span>
       <nav class="top-social" aria-label="Redes sociais">
         {socials.map((s) => (
-          <a href={s.url} target="_blank" rel="noopener" aria-label={s.label} title={s.label}>
-            <Icon name={s.key} size={16} />
+          <a href={s.url} target="_blank" rel="noopener" aria-label={s.label} title={s.label} class={`ts-${s.key}`}>
+            <Icon name={s.key} size={17} />
           </a>
         ))}
       </nav>
@@ -31,7 +31,7 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
       <button class="icon-btn" type="button" aria-controls="menu" aria-expanded="false" data-menu-open>
         <Icon name="menu" size={24} /><span class="sr-only">Abrir menu</span>
       </button>
-      <Logo as={isHome ? "h1" : "div"} />
+      <Logo as={isHome ? "h1" : "div"} height={48} />
       <div class="bar-actions">
         <a class="btn btn-whats send" href="/envie-sua-noticia/">
           <Icon name="camera" /><span>Envie sua notícia</span>
@@ -80,6 +80,7 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
     <p class="drawer-h">Fale com a Central</p>
     <ul>
       <li><a href="/envie-sua-noticia/">Envie sua notícia, vídeo ou denúncia</a></li>
+      <li><a href={CONTACT.whatsappChannel} target="_blank" rel="noopener">Siga o canal no WhatsApp</a></li>
       <li><a href={CONTACT.whatsappGroup} target="_blank" rel="noopener">Entre no grupo do WhatsApp</a></li>
       <li><a href="/anuncie/">Anuncie na Central</a></li>
       <li><a href="/sobre/">Quem somos</a></li>
@@ -109,8 +110,9 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
 
 <style>
   .topbar {
-    background: var(--tinta);
+    background: #000;
     color: #c9ced8;
+    border-bottom: 1px solid #1c1c1c;
     font: 0.75rem/1 var(--ui);
   }
   .topbar-in {
@@ -123,21 +125,29 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
     display: flex;
     gap: 14px;
   }
+  .top-social a {
+    display: grid;
+    place-items: center;
+    height: 30px;
+  }
   .top-social a:hover {
     color: #fff;
+  }
+  .ts-whatsapp:hover {
+    color: #25d366 !important;
   }
   .bar {
     position: sticky;
     top: 0;
     z-index: 30;
-    background: var(--papel);
-    border-bottom: 1px solid var(--linha);
+    background: #000;
+    color: #fff;
   }
   .bar-in {
     display: flex;
     align-items: center;
     gap: 10px;
-    height: 64px;
+    height: 72px;
   }
   .bar-actions {
     margin-left: auto;
@@ -152,11 +162,11 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
     height: 44px;
     border: 0;
     background: none;
-    color: var(--tinta);
+    color: inherit;
     border-radius: 999px;
   }
   .icon-btn:hover {
-    background: var(--asfalto);
+    background: rgba(255, 255, 255, 0.12);
   }
   .send {
     min-height: 38px;
@@ -231,7 +241,10 @@ const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educaca
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 12px;
+    margin: -12px -20px 16px;
+    padding: 12px 12px 12px 20px;
+    background: #000;
+    color: #fff;
   }
   .drawer-search {
     display: flex;

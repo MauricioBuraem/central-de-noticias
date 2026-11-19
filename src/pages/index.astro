@@ -7,7 +7,7 @@ import Breaking from "../components/Breaking.astro";
 import Icon from "../components/Icon.astro";
 import { breaking, latest, mostRead, pinned, videos, type Card } from "../lib/db";
 import { CITIES, SITE, type CityKey } from "../lib/config";
-import { absolute, cityOf, img, postPath } from "../lib/format";
+import { absolute, cityOf, focusStyle, img, postPath } from "../lib/format";
 
 const cityKeys: CityKey[] = ["embu", "taboao", "itapecerica", "zona-sul"];
 const [recent, pins, urgent, top, reels, ...perCity] = await Promise.all([
@@ -61,7 +61,7 @@ const website = {
         {pins.slice(0, 1).map((p) => (
           <a href={postPath(p)} class="destaque-in" style={`--cor:${cityOf(p.city).color}`}>
             <div class="ph r169">
-              {p.cover_path && <img src={img(p.cover_path, 640, 360)} width="640" height="360" alt={p.cover_alt ?? ""} loading="eager" />}
+              {p.cover_path && <img src={img(p.cover_path, 640)} width="640" height="360" alt={p.cover_alt ?? ""} style={focusStyle(p, 16 / 9)} loading="eager" />}
             </div>
             <div class="destaque-txt">
               <span class="selo">Em destaque</span>
