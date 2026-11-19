@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { purgeCache } from "@netlify/cache";
+import { purgeCache } from "@netlify/functions";
 
 // Called by the database (pg_net) whenever a post is created or changed.
 // Purges the CDN copy of every page so readers see the new story immediately.
