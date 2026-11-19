@@ -182,7 +182,7 @@ if (isVideo && igEmbed && post.cover_path) {
   // The embed is the caption-free version, and its header/footer are clipped so the
   // reader sees only the player (the play still counts as a view on Instagram).
   const IG_TOP = 54; // profile row at the top of the embed
-  const IG_BOTTOM = 158; // "View more", likes and comment box below the video
+  const IG_BOTTOM = 146; // "View more", likes and comment box below the video
   document.querySelectorAll<HTMLButtonElement>("[data-play]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const box = btn.closest<HTMLElement>("[data-embed]");
