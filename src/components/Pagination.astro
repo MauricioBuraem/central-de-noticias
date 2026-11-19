@@ -1,0 +1,19 @@
+---
+interface Props { page: number; hasNext: boolean; base: string }
+const { page, hasNext, base } = Astro.props;
+const href = (n: number) => (n <= 1 ? base : `${base}${base.includes("?") ? "&" : "?"}pagina=${n}`);
+---
+{(page > 1 || hasNext) && (
+  <nav class="pag" aria-label="Paginação">
+    {page > 1 && <a class="btn btn-ghost" href={href(page - 1)} rel="prev">Mais recentes</a>}
+    {hasNext && <a class="btn" href={href(page + 1)} rel="next">Ver mais notícias</a>}
+  </nav>
+)}
+<style>
+  .pag {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 28px;
+  }
+</style>

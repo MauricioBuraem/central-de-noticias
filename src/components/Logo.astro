@@ -1,0 +1,59 @@
+---
+interface Props {
+  as?: "div" | "h1";
+  invert?: boolean;
+}
+const { as: Tag = "div", invert = false } = Astro.props;
+---
+<Tag class:list={["logo", { invert }]}>
+  <a href="/" aria-label="Central de Notícias, página inicial">
+    <span class="mark" aria-hidden="true">24h</span>
+    <span class="word" aria-hidden="true"><b>Central</b><i>de Notícias</i></span>
+  </a>
+</Tag>
+
+<style>
+  .logo {
+    margin: 0;
+    font-size: 1rem;
+  }
+  .logo a {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+  }
+  .mark {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: var(--sirene);
+    color: #fff;
+    font: 700 0.95rem/1 var(--display);
+    letter-spacing: -0.02em;
+  }
+  .word {
+    display: grid;
+    line-height: 0.92;
+  }
+  .word b {
+    font: 700 1.55rem/0.95 var(--display);
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+    color: var(--tinta);
+  }
+  .word i {
+    font: 500 0.82rem/1 var(--display);
+    font-style: normal;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: var(--sirene);
+  }
+  .invert .word b {
+    color: #fff;
+  }
+  .invert .word i {
+    color: #ffb59f;
+  }
+</style>

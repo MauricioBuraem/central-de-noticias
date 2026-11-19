@@ -1,0 +1,26 @@
+---
+import ListPage from "../components/ListPage.astro";
+import { latest, mostRead } from "../lib/db";
+import { CITIES, CITY_BY_PATH, SITE } from "../lib/config";
+
+const key = CITY_BY_PATH[Astro.params.city ?? ""];
+if (!key) return Astro.rewrite("/404");
+const c = CITIES[key];
+const page = Math.max(1, Number(Astro.url.searchParams.get("pagina") ?? "1") || 1);
+const PER = 20;
+const [rows, top] = await Promise.all([latest(PER + 1, (page - 1) * PER, { city: key }), mostRead(3, 5)]);
+const hasNext = rows.length > PER;
+---
+<ListPage
+  heading={c.name}
+  intro={c.about}
+  title={key === "regiao" ? "Notícias da região" : `Notícias de ${c.name} hoje`}
+  description={`${c.about} Acompanhe a ${SITE.name}.`}
+  path={c.path}
+  posts={rows.slice(0, PER)}
+  mostRead={top}
+  page={page}
+  hasNext={hasNext}
+  color={c.color}
+  activeCity={key}
+/>

@@ -1,0 +1,92 @@
+---
+import Base from "../layouts/Base.astro";
+import Story from "./Story.astro";
+import Sidebar from "./Sidebar.astro";
+import Pagination from "./Pagination.astro";
+import AdSlot from "./AdSlot.astro";
+import type { Card } from "../lib/db";
+import { absolute, postPath } from "../lib/format";
+
+interface Props {
+  heading: string;
+  intro?: string;
+  title: string;
+  description: string;
+  path: string;
+  posts: Card[];
+  mostRead: Card[];
+  page: number;
+  hasNext: boolean;
+  color?: string;
+  activeCity?: string;
+  empty?: string;
+  noindex?: boolean;
+}
+const { heading, intro, title, description, path, posts, mostRead, page, hasNext, color, activeCity, empty, noindex } = Astro.props;
+const [lead, ...rest] = page === 1 ? posts : [undefined, ...posts];
+const ld = {
+  "@context": "https://schema.org",
+  "@type": "CollectionPage",
+  name: heading,
+  url: absolute(path),
+  mainEntity: { "@type": "ItemList", itemListElement: posts.slice(0, 20).map((p, i) => ({ "@type": "ListItem", position: i + 1, url: absolute(postPath(p)) })) },
+};
+---
+<Base title={page > 1 ? `${title} (página ${page})` : title} description={description} path={page > 1 ? `${path}?pagina=${page}` : path} jsonLd={[ld]} activeCity={activeCity} noindex={noindex}>
+  <div class="wrap lp" style={color ? `--cor:${color}` : ""}>
+    <header class="lp-head">
+      <h1>{heading}</h1>
+      {intro && <p>{intro}</p>}
+      <slot name="head" />
+    </header>
+    <div class="grid-main">
+      <section aria-label="Notícias">
+        {posts.length === 0 && <p class="empty">{empty ?? "Ainda não há notícias aqui. Volte em breve."}</p>}
+        {lead && <div class="lp-lead"><Story post={lead} variant="lead" eager showExcerpt headingLevel={2} /></div>}
+        <div class="lp-feed">
+          {rest.map((p, i) => (
+            <>
+              {p && <Story post={p} variant="row" showExcerpt={i < 3} headingLevel={2} />}
+              {i === 6 && <div class="lp-ad"><AdSlot size="inline" /></div>}
+            </>
+          ))}
+        </div>
+        <Pagination page={page} hasNext={hasNext} base={path} />
+      </section>
+      <Sidebar mostRead={mostRead} />
+    </div>
+  </div>
+</Base>
+<style>
+  .lp {
+    padding-top: 22px;
+  }
+  .lp-head {
+    border-top: 4px solid var(--cor, var(--sirene));
+    padding-top: 14px;
+    margin-bottom: 24px;
+  }
+  .lp-head h1 {
+    margin: 0;
+    font: 700 clamp(2rem, 1.4rem + 2.4vw, 3rem)/1 var(--display);
+    color: var(--cor, var(--tinta));
+  }
+  .lp-head p {
+    margin: 10px 0 0;
+    max-width: 62ch;
+    color: var(--tinta-2);
+  }
+  .lp-lead {
+    padding-bottom: 22px;
+    border-bottom: 1px solid var(--linha);
+  }
+  .lp-feed > :global(.story),
+  .lp-ad {
+    padding: 18px 0;
+    border-bottom: 1px solid var(--linha);
+  }
+  .empty {
+    padding: 40px 0;
+    color: var(--tinta-2);
+  }
+</style>

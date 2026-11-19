@@ -1,0 +1,479 @@
+---
+import Base from "../../../../layouts/Base.astro";
+import Story from "../../../../components/Story.astro";
+import Sidebar from "../../../../components/Sidebar.astro";
+import AdSlot from "../../../../components/AdSlot.astro";
+import Icon from "../../../../components/Icon.astro";
+import ShareBar from "../../../../components/ShareBar.astro";
+import { bySlug, mostRead, related } from "../../../../lib/db";
+import { CONTACT, SITE, SUPABASE } from "../../../../lib/config";
+import {
+  absolute, categoryName, cityOf, fullDateTime, img, ogImage, postPath, readingMinutes,
+  splitAfterParagraph, srcset, stripTags,
+} from "../../../../lib/format";
+
+const { slug } = Astro.params;
+const post = slug ? await bySlug(slug) : null;
+if (!post) return Astro.rewrite("/404");
+
+const canonicalPath = postPath(post);
+if (Astro.url.pathname.replace(/\/?$/, "/") !== canonicalPath) return Astro.redirect(canonicalPath, 301);
+
+const [rel, top] = await Promise.all([related(post, 6), mostRead(3, 5)]);
+const city = cityOf(post.city);
+const section = categoryName(post.category);
+const updatedLater = new Date(post.updated_at).getTime() - new Date(post.published_at).getTime() > 15 * 60_000;
+const title = post.seo_title ?? post.title;
+const description = post.seo_description ?? post.excerpt ?? stripTags(post.body_html).slice(0, 155);
+const isVideo = post.ig_media_type === "VIDEO";
+const igEmbed = post.ig_permalink ? post.ig_permalink.replace(/\/?$/, "/") + "embed/captioned/" : null;
+const [bodyA, bodyB] = splitAfterParagraph(post.body_html, 3);
+const portrait = (post.cover_height ?? 0) > (post.cover_width ?? 1) * 1.05;
+const coverW = 1200;
+const coverH = post.cover_width && post.cover_height ? Math.round((coverW * post.cover_height) / post.cover_width) : 675;
+
+const articleLd: Record<string, unknown> = {
+  "@context": "https://schema.org",
+  "@type": "NewsArticle",
+  mainEntityOfPage: { "@type": "WebPage", "@id": absolute(canonicalPath) },
+  headline: post.title.slice(0, 110),
+  description,
+  image: post.cover_path
+    ? [ogImage(post.cover_path), absolute(img(post.cover_path, 1200, 1200)), absolute(img(post.cover_path, 1200, 900))]
+    : [absolute("/og-default.png")],
+  datePublished: post.published_at,
+  dateModified: post.updated_at,
+  author: [{ "@type": "Organization", name: post.author, url: absolute("/sobre/") }],
+  publisher: { "@id": absolute("/#org") },
+  articleSection: section,
+  keywords: post.tags.join(", "),
+  contentLocation: { "@type": "Place", name: city.name },
+  isAccessibleForFree: true,
+  inLanguage: "pt-BR",
+};
+const crumbs = {
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  itemListElement: [
+    { "@type": "ListItem", position: 1, name: "Início", item: absolute("/") },
+    { "@type": "ListItem", position: 2, name: city.name, item: absolute(city.path) },
+    { "@type": "ListItem", position: 3, name: post.title.slice(0, 110), item: absolute(canonicalPath) },
+  ],
+};
+const ld: object[] = [articleLd, crumbs];
+if (isVideo && igEmbed && post.cover_path) {
+  ld.push({
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: post.title.slice(0, 110),
+    description,
+    thumbnailUrl: [ogImage(post.cover_path)],
+    uploadDate: post.published_at,
+    embedUrl: igEmbed,
+  });
+}
+---
+<Base
+  title={title}
+  description={description}
+  path={canonicalPath}
+  image={ogImage(post.cover_path)}
+  imageAlt={post.cover_alt ?? post.title}
+  type="article"
+  jsonLd={ld}
+  activeCity={post.city}
+  article={{ published: post.published_at, modified: post.updated_at, section, tags: post.tags }}
+>
+  <div class="wrap">
+    <div class="grid-main art-grid">
+      <article class="materia" style={`--cor:${city.color}`} data-slug={post.slug} data-sb={SUPABASE.url} data-sbkey={SUPABASE.key}>
+        <nav class="crumbs" aria-label="Você está em">
+          <a href="/">Início</a><span aria-hidden="true">/</span>
+          <a href={city.path}>{city.name}</a><span aria-hidden="true">/</span>
+          <a href={`/editoria/${post.category}/`}>{section}</a>
+        </nav>
+
+        <header class="m-head">
+          {post.is_breaking && <span class="urg">Urgente</span>}
+          <h1 class="t m-title">{post.title}</h1>
+          {post.subtitle && <p class="m-sub">{post.subtitle}</p>}
+          <div class="byline">
+            <div>
+              <p class="by">Por <a href="/sobre/">{post.author}</a></p>
+              <p class="meta">
+                <time datetime={post.published_at}>{fullDateTime(post.published_at)}</time>
+                {updatedLater && <> · Atualizado <time datetime={post.updated_at}>{fullDateTime(post.updated_at)}</time></>}
+                {" · "}{readingMinutes(post.body_html)} min de leitura
+              </p>
+            </div>
+            <ShareBar url={absolute(canonicalPath)} title={post.title} compact />
+          </div>
+        </header>
+
+        {post.cover_path && (
+          <figure class:list={["capa", { portrait, video: isVideo }]}>
+            <div class="capa-media" data-embed={isVideo && igEmbed ? igEmbed : undefined}>
+              {portrait && <img class="capa-bg" src={img(post.cover_path, 40)} alt="" aria-hidden="true" />}
+              <img
+                class="capa-img"
+                src={img(post.cover_path, 900)}
+                srcset={srcset(post.cover_path, [480, 720, 900, 1200])}
+                sizes="(min-width: 1000px) 760px, 100vw"
+                width={coverW}
+                height={coverH}
+                alt={post.cover_alt ?? post.title}
+                fetchpriority="high"
+                loading="eager"
+              />
+              {isVideo && igEmbed && (
+                <button type="button" class="play-big" data-play>
+                  <span class="pb-ico"><Icon name="play" size={30} /></span>
+                  <span>Assistir ao vídeo</span>
+                </button>
+              )}
+            </div>
+            <figcaption>
+              {post.cover_alt && post.cover_alt !== post.title ? post.cover_alt : `Imagem: ${SITE.name}`}
+              {post.ig_permalink && <> · <a href={post.ig_permalink} target="_blank" rel="noopener">Ver no Instagram</a></>}
+            </figcaption>
+          </figure>
+        )}
+
+        <div class="corpo">
+          <Fragment set:html={bodyA} />
+          {bodyB && <div class="in-ad"><AdSlot size="inline" /></div>}
+          {bodyB && <Fragment set:html={bodyB} />}
+        </div>
+
+        {post.tags.length > 0 && (
+          <ul class="tags" aria-label="Assuntos">
+            {post.tags.map((t) => <li><a href={`/busca/?q=${encodeURIComponent(t)}`}>{t}</a></li>)}
+          </ul>
+        )}
+
+        <div class="share-end">
+          <p>Compartilhe esta notícia</p>
+          <ShareBar url={absolute(canonicalPath)} title={post.title} />
+        </div>
+
+        <aside class="dica">
+          <div>
+            <p class="dica-t">Tem mais informações sobre este caso?</p>
+            <p>Fale com a redação pelo WhatsApp. A identidade da fonte é preservada.</p>
+          </div>
+          <a class="btn btn-whats" target="_blank" rel="noopener" href={CONTACT.waLink(`Olá, Central! Tenho informações sobre: ${post.title}`)}><Icon name="whatsapp" />Falar com a redação</a>
+        </aside>
+      </article>
+
+      <Sidebar mostRead={top} />
+    </div>
+
+    {rel.length > 0 && (
+      <section class="rel" aria-labelledby="rel-h" style={`--cor:${city.color}`}>
+        <div class="sec-h"><h2 id="rel-h">Mais notícias de {city.short}</h2><a href={city.path}>Ver todas</a></div>
+        <div class="rel-grid">{rel.map((p) => <Story post={p} variant="tile" />)}</div>
+      </section>
+    )}
+  </div>
+</Base>
+
+<script>
+  // Video: swap the cover for the Instagram player only when the reader asks for it
+  document.querySelectorAll<HTMLButtonElement>("[data-play]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const box = btn.closest<HTMLElement>("[data-embed]");
+      if (!box) return;
+      const f = document.createElement("iframe");
+      f.src = box.dataset.embed!;
+      f.title = "Vídeo da notícia no Instagram";
+      f.allow = "autoplay; encrypted-media; picture-in-picture; clipboard-write";
+      f.setAttribute("allowfullscreen", "");
+      f.loading = "eager";
+      box.classList.add("playing");
+      box.replaceChildren(f);
+    });
+  });
+
+  // Count one view per article per session (feeds "Mais lidas")
+  const art = document.querySelector<HTMLElement>("article.materia");
+  if (art) {
+    const k = "v:" + art.dataset.slug;
+    let seen = false;
+    try { seen = sessionStorage.getItem(k) === "1"; sessionStorage.setItem(k, "1"); } catch {}
+    if (!seen) {
+      setTimeout(() => {
+        fetch(`${art.dataset.sb}/rest/v1/rpc/increment_views`, {
+          method: "POST",
+          keepalive: true,
+          headers: { "Content-Type": "application/json", apikey: art.dataset.sbkey!, Authorization: `Bearer ${art.dataset.sbkey}` },
+          body: JSON.stringify({ p_slug: art.dataset.slug }),
+        }).catch(() => {});
+      }, 4000);
+    }
+  }
+</script>
+
+<style>
+  .art-grid {
+    padding-top: 18px;
+  }
+  .materia {
+    min-width: 0;
+  }
+  .crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    font: 600 0.82rem/1.3 var(--ui);
+    color: var(--tinta-3);
+    margin-bottom: 14px;
+  }
+  .crumbs a:nth-of-type(2) {
+    color: var(--cor);
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+  .urg {
+    display: inline-block;
+    background: var(--faixa);
+    color: var(--tinta);
+    font: 700 0.85rem/1 var(--display);
+    text-transform: uppercase;
+    padding: 6px 9px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+  }
+  .m-title {
+    font-size: clamp(1.7rem, 1.05rem + 2.4vw, 2.75rem);
+    font-weight: 700;
+    line-height: 1.06;
+    max-width: 30ch;
+  }
+  .m-sub {
+    margin: 14px 0 0;
+    font: 400 1.2rem/1.45 var(--serif);
+    color: var(--tinta-2);
+    max-width: 60ch;
+  }
+  .byline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-top: 18px;
+    padding: 12px 0;
+    border-top: 1px solid var(--linha);
+    border-bottom: 1px solid var(--linha);
+  }
+  .by {
+    margin: 0 0 3px;
+    font-weight: 600;
+    font-size: 0.9rem;
+  }
+  .by a {
+    color: var(--sirene-escura);
+  }
+  .meta {
+    margin: 0;
+  }
+
+  .capa {
+    margin: 22px 0 0;
+  }
+  .capa-media {
+    position: relative;
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--tinta);
+  }
+  .capa-img {
+    width: 100%;
+  }
+  .portrait .capa-media {
+    display: grid;
+    place-items: center;
+    max-height: min(78vh, 820px);
+  }
+  .portrait .capa-img {
+    position: relative;
+    width: auto;
+    max-width: 100%;
+    max-height: min(78vh, 820px);
+    object-fit: contain;
+  }
+  .capa-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: blur(24px) brightness(0.55);
+    transform: scale(1.2);
+  }
+  .play-big {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 10px;
+    border: 0;
+    background: linear-gradient(to top, rgba(15, 17, 22, 0.55), rgba(15, 17, 22, 0.05) 60%);
+    color: #fff;
+    font: 600 1rem/1 var(--ui);
+  }
+  .pb-ico {
+    display: grid;
+    place-items: center;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    background: var(--sirene);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
+    padding-left: 4px;
+  }
+  .play-big:hover .pb-ico {
+    background: var(--sirene-escura);
+  }
+  .capa-media.playing {
+    max-height: none;
+    background: #fff;
+    display: block;
+  }
+  .capa-media :global(iframe) {
+    display: block;
+    width: 100%;
+    max-width: 540px;
+    height: min(88vh, 860px);
+    margin: 0 auto;
+    border: 0;
+  }
+  figcaption {
+    margin-top: 8px;
+    font: 0.8rem/1.4 var(--ui);
+    color: var(--tinta-3);
+  }
+  figcaption a {
+    color: var(--sirene-escura);
+    font-weight: 600;
+  }
+
+  .corpo {
+    margin-top: 24px;
+    font: 400 1.16rem/1.7 var(--serif);
+    max-width: 68ch;
+  }
+  .corpo :global(p) {
+    margin: 0 0 1.15em;
+  }
+  .corpo :global(h2) {
+    font: 700 1.45rem/1.15 var(--display);
+    margin: 1.6em 0 0.6em;
+  }
+  .corpo :global(ul) {
+    margin: 0 0 1.2em;
+    padding-left: 1.2em;
+  }
+  .corpo :global(li) {
+    margin-bottom: 0.4em;
+  }
+  .corpo :global(a) {
+    color: var(--sirene-escura);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .corpo :global(.ad a) {
+    color: inherit;
+    text-decoration: none;
+  }
+  .corpo :global(p.alerta) {
+    padding: 12px 14px;
+    background: #fff6df;
+    border-left: 4px solid var(--faixa);
+    border-radius: 4px;
+    font-size: 1.02rem;
+  }
+  .corpo :global(p.nota) {
+    padding: 12px 14px;
+    background: var(--asfalto);
+    border-radius: 4px;
+    font-size: 1.02rem;
+  }
+  .corpo :global(p.cta) {
+    font-family: var(--ui);
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .in-ad {
+    margin: 8px 0 28px;
+  }
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0;
+    margin: 28px 0 0;
+  }
+  .tags a {
+    display: inline-block;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: var(--asfalto);
+    font: 600 0.82rem/1 var(--ui);
+  }
+  .tags a:hover {
+    background: var(--linha);
+  }
+  .share-end {
+    margin-top: 28px;
+    padding-top: 18px;
+    border-top: 1px solid var(--linha);
+  }
+  .share-end p {
+    margin: 0 0 10px;
+    font: 700 1.1rem/1 var(--display);
+  }
+  .dica {
+    display: grid;
+    gap: 14px;
+    margin-top: 28px;
+    padding: 20px;
+    border-radius: 10px;
+    background: #e7f6ed;
+  }
+  @media (min-width: 700px) {
+    .dica {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+  .dica p {
+    margin: 0;
+    color: var(--tinta-2);
+  }
+  .dica .dica-t {
+    font: 700 1.25rem/1.15 var(--display);
+    color: var(--tinta);
+    margin-bottom: 4px;
+  }
+  .rel {
+    margin-top: 48px;
+  }
+  .rel-grid {
+    display: grid;
+    gap: 24px;
+  }
+  @media (min-width: 640px) {
+    .rel-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (min-width: 1000px) {
+    .rel-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+</style>

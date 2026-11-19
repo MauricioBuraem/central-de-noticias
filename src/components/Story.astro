@@ -1,0 +1,120 @@
+---
+import Icon from "./Icon.astro";
+import type { Card } from "../lib/db";
+import { categoryName, cityOf, img, postPath, srcset, timeAgo } from "../lib/format";
+
+interface Props {
+  post: Card;
+  variant?: "lead" | "tile" | "row" | "reel" | "compact";
+  eager?: boolean;
+  showExcerpt?: boolean;
+  headingLevel?: 2 | 3;
+}
+const { post, variant = "tile", eager = false, showExcerpt = false, headingLevel = 3 } = Astro.props;
+const city = cityOf(post.city);
+const href = postPath(post);
+const isVideo = post.ig_media_type === "VIDEO";
+const H = headingLevel === 2 ? "h2" : "h3";
+const alt = post.cover_alt ?? "";
+
+const shapes = {
+  lead: { ratio: 16 / 9, widths: [480, 720, 960, 1200], sizes: "(min-width: 1000px) 760px, 100vw", tcls: "t-xl" },
+  tile: { ratio: 16 / 9, widths: [320, 480, 640], sizes: "(min-width: 1000px) 380px, (min-width: 640px) 50vw, 100vw", tcls: "t-m" },
+  row: { ratio: 4 / 3, widths: [160, 240, 360], sizes: "(min-width: 640px) 220px, 120px", tcls: "t-m" },
+  reel: { ratio: 9 / 16, widths: [180, 270, 360], sizes: "180px", tcls: "t-s" },
+  compact: { ratio: 1, widths: [96, 160], sizes: "80px", tcls: "t-s" },
+}[variant];
+const ratioCls = { lead: "r169", tile: "r169", row: "r43", reel: "r916", compact: "r11" }[variant];
+const w0 = shapes.widths[Math.min(1, shapes.widths.length - 1)];
+---
+<article class={`story story-${variant}`} style={`--cor:${city.color}`}>
+  <a href={href} class="story-link">
+    <div class={`ph ${ratioCls}`}>
+      {post.cover_path && (
+        <img
+          src={img(post.cover_path, w0, Math.round(w0 / shapes.ratio))}
+          srcset={srcset(post.cover_path, shapes.widths, shapes.ratio)}
+          sizes={shapes.sizes}
+          width={w0}
+          height={Math.round(w0 / shapes.ratio)}
+          alt={alt}
+          loading={eager ? "eager" : "lazy"}
+          fetchpriority={eager ? "high" : "auto"}
+          decoding="async"
+        />
+      )}
+      {isVideo && variant !== "compact" && (
+        <span class="play"><Icon name="play" />Vídeo</span>
+      )}
+    </div>
+    <div class="story-txt">
+      <span class="chapeu">{city.short}<span class="cat">{categoryName(post.category)}</span></span>
+      <H class={`t ${shapes.tcls}`}>{post.title}</H>
+      {showExcerpt && post.excerpt && <p class="exc">{post.excerpt}</p>}
+      <time class="meta" datetime={post.published_at} data-ago>{timeAgo(post.published_at)}</time>
+    </div>
+  </a>
+</article>
+
+<style>
+  .story-link {
+    display: grid;
+    gap: 10px;
+  }
+  .story-txt {
+    display: grid;
+    gap: 6px;
+    align-content: start;
+  }
+  .chapeu .cat::before {
+    content: "/";
+    margin: 0 5px 0 1px;
+    color: var(--linha);
+  }
+  .exc {
+    margin: 0;
+    font: 1rem/1.45 var(--serif);
+    color: var(--tinta-2);
+  }
+  .story-lead .exc {
+    font-size: 1.12rem;
+    max-width: 62ch;
+  }
+  .story-lead .story-link {
+    gap: 14px;
+  }
+
+  .story-row .story-link {
+    grid-template-columns: minmax(0, 1fr) 120px;
+    gap: 14px;
+    align-items: start;
+  }
+  .story-row .ph {
+    order: 2;
+  }
+  @media (min-width: 640px) {
+    .story-row .story-link {
+      grid-template-columns: minmax(0, 1fr) 220px;
+      gap: 20px;
+    }
+    .story-row .t {
+      font-size: 1.3rem;
+    }
+  }
+
+  .story-compact .story-link {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: 12px;
+    align-items: start;
+  }
+
+  .story-reel .story-link {
+    gap: 8px;
+  }
+  .story-reel .t {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+</style>

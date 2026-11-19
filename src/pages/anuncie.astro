@@ -1,0 +1,38 @@
+---
+import Page from "../layouts/Page.astro";
+import Icon from "../components/Icon.astro";
+import { CONTACT } from "../lib/config";
+const wa = CONTACT.waLink("Olá! Quero anunciar na Central de Notícias. Pode me enviar o mídia kit?");
+---
+<Page
+  title="Anuncie na Central de Notícias"
+  description="Anuncie para mais de 61 mil seguidores de Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul. Instagram, WhatsApp, portal e painel de LED."
+  lead="Sua marca na frente de quem mora, trabalha e compra em Embu, Taboão, Itapecerica e Zona Sul."
+>
+  <div class="nums">
+    <div><b>61 mil+</b><span>seguidores no Instagram</span></div>
+    <div><b>3,8 mi</b><span>visualizações por mês</span></div>
+    <div><b>57%</b><span>do público tem de 25 a 44 anos</span></div>
+    <div><b>23 mil</b><span>seguidores só em Embu das Artes</span></div>
+  </div>
+  <a class="btn btn-whats big" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" />Pedir o mídia kit 2027</a>
+
+  <h2>Onde sua marca aparece</h2>
+  <ul>
+    <li><strong>Instagram:</strong> stories, posts no feed, carrosséis e reels produzidos pela nossa equipe.</li>
+    <li><strong>WhatsApp:</strong> divulgação nos grupos e no canal da Central.</li>
+    <li><strong>Portal:</strong> banners na página inicial, nas páginas de cada cidade e dentro das matérias.</li>
+    <li><strong>Painel de LED:</strong> inserções no painel no centro de Embu das Artes.</li>
+    <li><strong>Pacotes:</strong> combinações com desconto para campanhas de 30 dias.</li>
+  </ul>
+  <h2>Publicidade com transparência</h2>
+  <p>Todo conteúdo pago é identificado como publicidade ou parceria. A linha editorial da Central é independente dos anunciantes.</p>
+</Page>
+<style>
+  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; font-family: var(--ui); }
+  @media (min-width: 700px) { .nums { grid-template-columns: repeat(4, 1fr); } }
+  .nums div { padding: 16px; border-radius: 10px; background: var(--asfalto); display: grid; gap: 4px; }
+  .nums b { font: 700 2rem/1 var(--display); color: var(--sirene); }
+  .nums span { font-size: 0.88rem; color: var(--tinta-2); line-height: 1.3; }
+  .big { min-height: 50px; }
+</style>

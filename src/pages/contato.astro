@@ -1,0 +1,12 @@
+---
+import Page from "../layouts/Page.astro";
+import Icon from "../components/Icon.astro";
+import { CONTACT, SOCIAL } from "../lib/config";
+---
+<Page title="Contato" description="Fale com a redação da Central de Notícias pelo WhatsApp, Instagram ou e-mail." lead="Fale com a redação, mande uma pauta ou peça informações sobre publicidade.">
+  <p><a class="btn btn-whats" href={`https://wa.me/${CONTACT.whatsappNumber}`} target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp {CONTACT.whatsappDisplay}</a></p>
+  <ul>
+    <li>E-mail: <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
+    {SOCIAL.filter((s) => s.url).map((s) => <li>{s.label}: <a href={s.url} target="_blank" rel="noopener">{s.url.replace(/^https?:\/\/(www\.)?/, "")}</a></li>)}
+  </ul>
+</Page>

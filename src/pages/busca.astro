@@ -1,0 +1,42 @@
+---
+import ListPage from "../components/ListPage.astro";
+import { mostRead, search } from "../lib/db";
+const q = (Astro.url.searchParams.get("q") ?? "").trim().slice(0, 100);
+const page = Math.max(1, Number(Astro.url.searchParams.get("pagina") ?? "1") || 1);
+const PER = 20;
+const [rows, top] = await Promise.all([q ? search(q, PER + 1, (page - 1) * PER) : Promise.resolve([]), mostRead(3, 5)]);
+---
+<ListPage
+  heading={q ? `Resultados para "${q}"` : "Buscar notícias"}
+  title={q ? `Busca: ${q}` : "Buscar notícias"}
+  description="Busque notícias da Central de Notícias."
+  path={q ? `/busca/?q=${encodeURIComponent(q)}` : "/busca/"}
+  posts={rows.slice(0, PER)}
+  mostRead={top}
+  page={page}
+  hasNext={rows.length > PER}
+  empty={q ? `Nenhuma notícia encontrada para "${q}". Tente outra palavra, como o nome do bairro.` : "Digite um bairro, rua, cidade ou assunto."}
+  noindex
+>
+  <form slot="head" action="/busca/" method="get" role="search" class="busca">
+    <label for="q" class="sr-only">Buscar</label>
+    <input id="q" name="q" type="search" value={q} placeholder="Bairro, rua, cidade ou assunto" autofocus={!q} />
+    <button class="btn btn-sirene" type="submit">Buscar</button>
+  </form>
+</ListPage>
+<style>
+  .busca {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    max-width: 560px;
+  }
+  .busca input {
+    flex: 1;
+    min-width: 0;
+    padding: 12px 16px;
+    border: 1.5px solid var(--linha);
+    border-radius: 999px;
+    font: 1rem var(--ui);
+  }
+</style>

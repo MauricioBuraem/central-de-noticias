@@ -1,0 +1,13 @@
+---
+import Page from "../layouts/Page.astro";
+import { CONTACT } from "../lib/config";
+---
+<Page title="Política de privacidade" description="Como a Central de Notícias trata os dados de quem visita o portal." noindex>
+  <p>Este portal não exige cadastro. Coletamos apenas o mínimo necessário para funcionar:</p>
+  <ul>
+    <li><strong>Contagem de leituras:</strong> registramos quantas vezes cada notícia foi aberta, sem identificar quem leu, para montar a lista de mais lidas.</li>
+    <li><strong>Alertas no navegador:</strong> se você ativar os alertas, guardamos o endereço técnico de notificação gerado pelo seu navegador. Você pode desativar a qualquer momento nas configurações do navegador.</li>
+    <li><strong>Preferências locais:</strong> guardamos no seu próprio aparelho se você já respondeu ao convite de alertas.</li>
+  </ul>
+  <p>Mensagens enviadas pelo WhatsApp ficam na conversa com a redação e são usadas apenas para apuração. Para pedir a remoção de dados, fale com <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a>.</p>
+</Page>

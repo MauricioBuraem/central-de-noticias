@@ -1,0 +1,67 @@
+---
+import Page from "../layouts/Page.astro";
+import Icon from "../components/Icon.astro";
+import { CITIES, CONTACT } from "../lib/config";
+---
+<Page
+  title="Envie sua notícia, vídeo ou denúncia"
+  description="Mande vídeo, foto, denúncia ou sugestão de pauta para a Central de Notícias pelo WhatsApp. A identidade da fonte é preservada."
+  lead="Viu um acidente, uma ocorrência, um problema no bairro ou um evento? Conte para a redação. Nós apuramos antes de publicar e não divulgamos quem enviou."
+>
+  <form class="envie" id="envie">
+    <div class="row">
+      <label>Cidade
+        <select name="cidade" required>
+          <option value="">Escolha</option>
+          {Object.values(CITIES).map((c) => <option>{c.name}</option>)}
+        </select>
+      </label>
+      <label>Bairro ou rua
+        <input name="bairro" placeholder="Ex.: Jardim Santa Tereza" />
+      </label>
+    </div>
+    <label>O que aconteceu?
+      <textarea name="texto" rows="5" required placeholder="Conte o que você viu, quando e onde. Se tiver vídeo ou foto, você anexa no WhatsApp na próxima tela."></textarea>
+    </label>
+    <label>Seu nome <span class="opt">(opcional, não será publicado)</span>
+      <input name="nome" autocomplete="name" />
+    </label>
+    <button class="btn btn-whats big" type="submit"><Icon name="whatsapp" />Continuar no WhatsApp</button>
+    <p class="hint">Vai abrir uma conversa com a redação ({CONTACT.whatsappDisplay}) com o seu texto pronto. Anexe o vídeo ou as fotos lá.</p>
+  </form>
+
+  <h2>Outras formas de falar com a Central</h2>
+  <ul>
+    <li>Direct do Instagram: <a href="https://ig.me/m/centraldenoticias24h" target="_blank" rel="noopener">@centraldenoticias24h</a></li>
+    <li>WhatsApp da redação: <a href={`https://wa.me/${CONTACT.whatsappNumber}`} target="_blank" rel="noopener">{CONTACT.whatsappDisplay}</a></li>
+    <li>E-mail: <a href={`mailto:${CONTACT.email}`}>{CONTACT.email}</a></li>
+  </ul>
+  <h2>Como tratamos o que você envia</h2>
+  <p>Toda informação é checada antes de ir ao ar. Não publicamos nome, telefone ou qualquer dado de quem enviou sem autorização. Vídeos com crianças, vítimas de violência sexual ou cenas muito fortes são editados ou não são publicados.</p>
+</Page>
+<script>
+  const f = document.getElementById("envie") as HTMLFormElement | null;
+  f?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const d = new FormData(f);
+    const parts = [
+      "Olá, Central! Quero enviar uma notícia.",
+      `Cidade: ${d.get("cidade")}`,
+      d.get("bairro") ? `Local: ${d.get("bairro")}` : "",
+      `O que aconteceu: ${d.get("texto")}`,
+      d.get("nome") ? `Meu nome: ${d.get("nome")}` : "",
+    ].filter(Boolean);
+    location.href = `https://wa.me/${f.dataset.n ?? "5511916492207"}?text=${encodeURIComponent(parts.join("\n"))}`;
+  });
+</script>
+<style>
+  .envie { display: grid; gap: 14px; padding: 20px; border-radius: 10px; background: var(--asfalto); font-family: var(--ui); font-size: 1rem; }
+  .row { display: grid; gap: 14px; }
+  @media (min-width: 640px) { .row { grid-template-columns: 1fr 1fr; } }
+  label { display: grid; gap: 6px; font-weight: 600; font-size: 0.92rem; }
+  .opt { font-weight: 400; color: var(--tinta-3); }
+  input, select, textarea { font: 1rem/1.4 var(--ui); padding: 12px 14px; border: 1.5px solid var(--linha); border-radius: 8px; background: #fff; width: 100%; }
+  textarea { resize: vertical; }
+  .big { justify-self: start; min-height: 50px; font-size: 1rem; }
+  .hint { margin: 0; font-size: 0.85rem; color: var(--tinta-3); }
+</style>

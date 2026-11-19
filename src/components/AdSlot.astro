@@ -1,0 +1,23 @@
+---
+// Advertising space. While a slot is unsold it promotes the "Anuncie" page.
+interface Props {
+  size?: "leader" | "box" | "inline";
+}
+const { size = "box" } = Astro.props;
+const dims = { leader: "min(100%, 728px)", box: "300px", inline: "min(100%, 336px)" }[size];
+const h = { leader: "clamp(90px, 22vw, 110px)", box: "250px", inline: "280px" }[size];
+---
+<div class="ad-wrap">
+  <span class="ad-label">Publicidade</span>
+  <div class="ad" style={`width:${dims};height:${h}`}>
+    <a href="/anuncie/">
+      <strong>Sua marca aqui</strong>
+      <span>Fale com mais de 61 mil moradores da região</span>
+    </a>
+  </div>
+</div>
+<style>
+  .ad-wrap {
+    margin: 0 auto;
+  }
+</style>

@@ -1,0 +1,280 @@
+---
+import Logo from "./Logo.astro";
+import Icon from "./Icon.astro";
+import { CATEGORIES, CITIES, CONTACT, SOCIAL } from "../lib/config";
+import { todayLong } from "../lib/format";
+
+interface Props {
+  isHome?: boolean;
+  activeCity?: string;
+}
+const { isHome = false, activeCity } = Astro.props;
+const socials = SOCIAL.filter((s) => s.url && s.key !== "whatsapp");
+const menuCats = ["policia", "transito", "politica", "cidade", "saude", "educacao", "eventos", "esportes", "empregos"];
+---
+<header class="site-header">
+  <div class="topbar">
+    <div class="wrap topbar-in">
+      <span class="today">{todayLong()}</span>
+      <nav class="top-social" aria-label="Redes sociais">
+        {socials.map((s) => (
+          <a href={s.url} target="_blank" rel="noopener" aria-label={s.label} title={s.label}>
+            <Icon name={s.key} size={16} />
+          </a>
+        ))}
+      </nav>
+    </div>
+  </div>
+
+  <div class="bar">
+    <div class="wrap bar-in">
+      <button class="icon-btn" type="button" aria-controls="menu" aria-expanded="false" data-menu-open>
+        <Icon name="menu" size={24} /><span class="sr-only">Abrir menu</span>
+      </button>
+      <Logo as={isHome ? "h1" : "div"} />
+      <div class="bar-actions">
+        <a class="btn btn-whats send" href="/envie-sua-noticia/">
+          <Icon name="camera" /><span>Envie sua notícia</span>
+        </a>
+        <a class="icon-btn" href="/busca/" aria-label="Buscar"><Icon name="search" size={22} /></a>
+      </div>
+    </div>
+  </div>
+
+  <nav class="cities" aria-label="Cidades">
+    <div class="wrap cities-in">
+      <a href="/" class:list={{ on: isHome }}>Últimas</a>
+      {Object.entries(CITIES).map(([k, c]) => (
+        <a href={c.path} style={`--cor:${c.color}`} class:list={["city", { on: activeCity === k }]}>
+          {c.short}
+        </a>
+      ))}
+      <a href="/editoria/policia/">Polícia</a>
+      <a href="/editoria/transito/">Trânsito</a>
+      <a href="/editoria/politica/">Política</a>
+    </div>
+  </nav>
+</header>
+
+<dialog id="menu" class="drawer" aria-label="Menu">
+  <div class="drawer-in">
+    <div class="drawer-top">
+      <Logo />
+      <button class="icon-btn" type="button" data-menu-close><Icon name="close" size={24} /><span class="sr-only">Fechar menu</span></button>
+    </div>
+    <form action="/busca/" method="get" role="search" class="drawer-search">
+      <label for="q-menu" class="sr-only">Buscar notícias</label>
+      <input id="q-menu" name="q" type="search" placeholder="Buscar notícias" autocomplete="off" />
+      <button type="submit" aria-label="Buscar"><Icon name="search" /></button>
+    </form>
+    <p class="drawer-h">Cidades</p>
+    <ul>
+      {Object.values(CITIES).map((c) => (
+        <li><a href={c.path} class="chapeu" style={`--cor:${c.color}`}>{c.name}</a></li>
+      ))}
+    </ul>
+    <p class="drawer-h">Editorias</p>
+    <ul class="cols">
+      {menuCats.map((k) => <li><a href={`/editoria/${k}/`}>{CATEGORIES[k]}</a></li>)}
+    </ul>
+    <p class="drawer-h">Fale com a Central</p>
+    <ul>
+      <li><a href="/envie-sua-noticia/">Envie sua notícia, vídeo ou denúncia</a></li>
+      <li><a href={CONTACT.whatsappGroup} target="_blank" rel="noopener">Entre no grupo do WhatsApp</a></li>
+      <li><a href="/anuncie/">Anuncie na Central</a></li>
+      <li><a href="/sobre/">Quem somos</a></li>
+      <li><a href="/contato/">Contato</a></li>
+    </ul>
+    <div class="drawer-social">
+      {SOCIAL.filter((s) => s.url).map((s) => (
+        <a href={s.url} target="_blank" rel="noopener" aria-label={s.label}><Icon name={s.key} size={22} /></a>
+      ))}
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const menu = document.getElementById("menu") as HTMLDialogElement | null;
+  const opener = document.querySelector<HTMLButtonElement>("[data-menu-open]");
+  opener?.addEventListener("click", () => {
+    menu?.showModal();
+    opener.setAttribute("aria-expanded", "true");
+  });
+  menu?.querySelector("[data-menu-close]")?.addEventListener("click", () => menu.close());
+  menu?.addEventListener("click", (e) => {
+    if (e.target === menu) menu.close();
+  });
+  menu?.addEventListener("close", () => opener?.setAttribute("aria-expanded", "false"));
+</script>
+
+<style>
+  .topbar {
+    background: var(--tinta);
+    color: #c9ced8;
+    font: 0.75rem/1 var(--ui);
+  }
+  .topbar-in {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 30px;
+  }
+  .top-social {
+    display: flex;
+    gap: 14px;
+  }
+  .top-social a:hover {
+    color: #fff;
+  }
+  .bar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    background: var(--papel);
+    border-bottom: 1px solid var(--linha);
+  }
+  .bar-in {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 64px;
+  }
+  .bar-actions {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .icon-btn {
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: none;
+    color: var(--tinta);
+    border-radius: 999px;
+  }
+  .icon-btn:hover {
+    background: var(--asfalto);
+  }
+  .send {
+    min-height: 38px;
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+  @media (max-width: 560px) {
+    .send span {
+      display: none;
+    }
+    .send {
+      width: 40px;
+      padding: 0;
+    }
+    .today {
+      font-size: 0.7rem;
+    }
+  }
+  .cities {
+    border-bottom: 1px solid var(--linha);
+    background: var(--papel);
+  }
+  .cities-in {
+    display: flex;
+    gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    padding-top: 6px;
+    padding-bottom: 6px;
+  }
+  .cities-in::-webkit-scrollbar {
+    display: none;
+  }
+  .cities a {
+    flex: none;
+    padding: 8px 12px;
+    border-radius: 999px;
+    font: 600 0.88rem/1 var(--ui);
+    color: var(--tinta-2);
+    white-space: nowrap;
+  }
+  .cities a.city {
+    color: var(--cor);
+  }
+  .cities a:hover {
+    background: var(--asfalto);
+  }
+  .cities a.on {
+    background: var(--tinta);
+    color: #fff;
+  }
+  .cities a.city.on {
+    background: var(--cor);
+  }
+
+  .drawer {
+    margin: 0;
+    height: 100dvh;
+    max-height: none;
+    width: min(360px, 92vw);
+    border: 0;
+    padding: 0;
+    background: var(--papel);
+  }
+  .drawer::backdrop {
+    background: rgba(15, 17, 22, 0.5);
+  }
+  .drawer-in {
+    padding: 12px 20px 32px;
+  }
+  .drawer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .drawer-search {
+    display: flex;
+    border: 1.5px solid var(--linha);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .drawer-search input {
+    flex: 1;
+    border: 0;
+    padding: 12px 16px;
+    font: 1rem var(--ui);
+    min-width: 0;
+  }
+  .drawer-search button {
+    border: 0;
+    background: none;
+    padding: 0 14px;
+  }
+  .drawer-h {
+    margin: 22px 0 8px;
+    font: 700 1.05rem/1 var(--display);
+    color: var(--tinta);
+  }
+  .drawer ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .drawer li a {
+    display: block;
+    padding: 9px 0;
+    font-weight: 500;
+  }
+  .drawer li a:hover {
+    color: var(--sirene-escura);
+  }
+  .drawer .cols {
+    columns: 2;
+  }
+  .drawer-social {
+    display: flex;
+    gap: 16px;
+    margin-top: 24px;
+  }
+</style>

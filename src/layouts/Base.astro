@@ -1,0 +1,105 @@
+---
+import "@fontsource-variable/oswald/wght.css";
+import "@fontsource-variable/source-serif-4/wght.css";
+import "../styles/global.css";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import PushPrompt from "../components/PushPrompt.astro";
+import { SITE, SOCIAL } from "../lib/config";
+import { absolute } from "../lib/format";
+
+interface Props {
+  title: string;
+  description?: string;
+  path?: string;
+  image?: string;
+  imageAlt?: string;
+  type?: "website" | "article";
+  noindex?: boolean;
+  jsonLd?: object[];
+  article?: { published: string; modified: string; section: string; tags: string[] };
+  isHome?: boolean;
+  activeCity?: string;
+  rss?: boolean;
+}
+const {
+  title,
+  description = SITE.description,
+  path = Astro.url.pathname,
+  image = absolute("/og-default.png"),
+  imageAlt = SITE.name,
+  type = "website",
+  noindex = false,
+  jsonLd = [],
+  article,
+  isHome = false,
+  activeCity,
+} = Astro.props;
+
+const canonical = absolute(path);
+const fullTitle = isHome ? `${SITE.name}: notícias de Embu, Taboão, Itapecerica e Zona Sul` : `${title} | ${SITE.name}`;
+const org = {
+  "@context": "https://schema.org",
+  "@type": "NewsMediaOrganization",
+  "@id": absolute("/#org"),
+  name: SITE.name,
+  url: absolute("/"),
+  logo: { "@type": "ImageObject", url: absolute("/icon-512.png"), width: 512, height: 512 },
+  sameAs: SOCIAL.filter((s) => s.url && s.key !== "whatsapp").map((s) => s.url),
+  areaServed: ["Embu das Artes", "Taboão da Serra", "Itapecerica da Serra", "Zona Sul de São Paulo"],
+  publishingPrinciples: absolute("/sobre/"),
+};
+const graph = [org, ...jsonLd];
+---
+<!doctype html>
+<html lang={SITE.lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? "noindex, follow" : "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1"} />
+    <meta name="theme-color" content="#e8401c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="alternate" type="application/rss+xml" title={SITE.name} href="/rss.xml" />
+    <link rel="preconnect" href="https://gsdqhyltmjbzdgprblmy.supabase.co" crossorigin />
+
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:locale" content={SITE.locale} />
+    <meta property="og:type" content={type} />
+    <meta property="og:title" content={isHome ? fullTitle : title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={image} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={imageAlt} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={isHome ? fullTitle : title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={image} />
+    {article && (
+      <>
+        <meta property="article:published_time" content={article.published} />
+        <meta property="article:modified_time" content={article.modified} />
+        <meta property="article:section" content={article.section} />
+        {article.tags.map((t) => <meta property="article:tag" content={t} />)}
+      </>
+    )}
+    <script type="application/ld+json" set:html={JSON.stringify(graph.length === 1 ? graph[0] : graph)} />
+  </head>
+  <body>
+    <a class="skip" href="#conteudo">Pular para o conteúdo</a>
+    <Header isHome={isHome} activeCity={activeCity} />
+    <slot name="top" />
+    <main id="conteudo">
+      <slot />
+    </main>
+    <Footer />
+    <PushPrompt />
+  </body>
+</html>

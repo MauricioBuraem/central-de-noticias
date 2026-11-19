@@ -1,0 +1,169 @@
+---
+import Icon from "./Icon.astro";
+import { CONTACT, SUPABASE, VAPID_PUBLIC_KEY } from "../lib/config";
+---
+<aside id="push" class="push" hidden aria-live="polite" aria-labelledby="push-t" data-key={VAPID_PUBLIC_KEY} data-sb={SUPABASE.url} data-sbkey={SUPABASE.key}>
+  <div class="push-ico" aria-hidden="true"><Icon name="bell" size={22} /></div>
+  <div class="push-body">
+    <p id="push-t" class="push-t">Quer saber primeiro do que acontece na região?</p>
+    <p class="push-s" data-push-text>Ative os alertas e receba as notícias urgentes de Embu, Taboão, Itapecerica e Zona Sul no celular.</p>
+    <div class="push-b">
+      <button type="button" class="btn btn-sirene" data-push-yes>Ativar alertas</button>
+      <a class="btn btn-whats" data-push-wa hidden href={CONTACT.whatsappGroup} target="_blank" rel="noopener"><Icon name="whatsapp" />Entrar no grupo</a>
+      <button type="button" class="btn btn-ghost" data-push-no>Agora não</button>
+    </div>
+  </div>
+</aside>
+
+<script>
+  // Soft prompt: never on arrival. It appears only after the reader has spent
+  // 25 seconds on an article AND scrolled past half of it, or on their third page.
+  const box = document.getElementById("push");
+  const KEY = "cn-push";
+  const store = {
+    get(k: string) {
+      try { return localStorage.getItem(k); } catch { return null; }
+    },
+    set(k: string, v: string) {
+      try { localStorage.setItem(k, v); } catch { /* private mode */ }
+    },
+  };
+
+  function b64ToUint8(b64: string) {
+    const pad = "=".repeat((4 - (b64.length % 4)) % 4);
+    const raw = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
+    return Uint8Array.from(raw, (c) => c.charCodeAt(0));
+  }
+
+  const supportsPush = "serviceWorker" in navigator && "PushManager" in window && "Notification" in window;
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("/sw.js").catch(() => {}));
+  }
+
+  function eligible() {
+    if (!box) return false;
+    const st = store.get(KEY);
+    if (st === "on") return false;
+    if (st && st.startsWith("no:") && Date.now() < Number(st.slice(3))) return false;
+    if (supportsPush && Notification.permission !== "default") return false;
+    return true;
+  }
+
+  function show() {
+    if (!eligible() || !box) return;
+    if (!supportsPush) {
+      // iPhone outside the home screen app, or old browsers: offer the WhatsApp group instead
+      box.querySelector("[data-push-yes]")?.setAttribute("hidden", "");
+      box.querySelector("[data-push-wa]")?.removeAttribute("hidden");
+      const t = box.querySelector("[data-push-text]");
+      if (t) t.textContent = "Entre no grupo da Central no WhatsApp e receba as notícias urgentes da região.";
+    }
+    box.hidden = false;
+    requestAnimationFrame(() => box.classList.add("in"));
+  }
+
+  function hide(remember?: "no" | "on") {
+    if (!box) return;
+    box.classList.remove("in");
+    setTimeout(() => (box.hidden = true), 250);
+    if (remember === "no") store.set(KEY, "no:" + (Date.now() + 14 * 86400_000));
+    if (remember === "on") store.set(KEY, "on");
+  }
+
+  async function subscribe() {
+    if (!box) return;
+    const reg = await navigator.serviceWorker.register("/sw.js");
+    const perm = await Notification.requestPermission();
+    if (perm !== "granted") return hide("no");
+    const sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(box.dataset.key!) });
+    const j = sub.toJSON();
+    await fetch(`${box.dataset.sb}/rest/v1/rpc/subscribe_push`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", apikey: box.dataset.sbkey!, Authorization: `Bearer ${box.dataset.sbkey}` },
+      body: JSON.stringify({ p_endpoint: j.endpoint, p_p256dh: j.keys?.p256dh, p_auth: j.keys?.auth, p_ua: navigator.userAgent }),
+    });
+    const t = box.querySelector("[data-push-text]");
+    if (t) t.textContent = "Pronto! Você vai receber os alertas da Central.";
+    setTimeout(() => hide("on"), 1800);
+  }
+
+  box?.querySelector("[data-push-yes]")?.addEventListener("click", () => subscribe().catch(() => hide("no")));
+  box?.querySelector("[data-push-no]")?.addEventListener("click", () => hide("no"));
+  box?.querySelector("[data-push-wa]")?.addEventListener("click", () => hide("on"));
+
+  // Trigger rules
+  const views = Number(store.get("cn-views") ?? "0") + 1;
+  store.set("cn-views", String(views));
+  const isArticle = document.body.querySelector("article.materia") !== null;
+  if (views >= 3) setTimeout(show, 8000);
+  else if (isArticle) {
+    let timeOk = false;
+    let scrollOk = false;
+    const check = () => timeOk && scrollOk && show();
+    setTimeout(() => { timeOk = true; check(); }, 25000);
+    const onScroll = () => {
+      const h = document.documentElement;
+      if ((h.scrollTop + innerHeight) / h.scrollHeight > 0.5) {
+        scrollOk = true;
+        removeEventListener("scroll", onScroll);
+        check();
+      }
+    };
+    addEventListener("scroll", onScroll, { passive: true });
+  }
+</script>
+
+<style>
+  .push {
+    position: fixed;
+    z-index: 50;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: 440px;
+    margin-left: auto;
+    display: flex;
+    gap: 14px;
+    padding: 16px;
+    background: var(--papel);
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(15, 17, 22, 0.25), 0 0 0 1px var(--linha);
+    transform: translateY(20px);
+    opacity: 0;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+  .push.in {
+    transform: none;
+    opacity: 1;
+  }
+  .push-ico {
+    flex: none;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #fde7e1;
+    color: var(--sirene);
+  }
+  .push-t {
+    margin: 0 0 4px;
+    font: 700 1.1rem/1.15 var(--display);
+  }
+  .push-s {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    color: var(--tinta-2);
+  }
+  .push-b {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .push-b .btn {
+    min-height: 40px;
+    padding: 8px 14px;
+    font-size: 0.88rem;
+  }
+</style>

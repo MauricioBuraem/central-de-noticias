@@ -1,0 +1,49 @@
+---
+import type { Card } from "../lib/db";
+import { cityOf, postPath } from "../lib/format";
+interface Props { posts: Card[] }
+const { posts } = Astro.props;
+---
+{posts.length > 0 && (
+  <section class="mais-lidas" aria-labelledby="ml-h">
+    <div class="sec-h"><h2 id="ml-h">Mais lidas</h2></div>
+    <ol>
+      {posts.map((p) => (
+        <li style={`--cor:${cityOf(p.city).color}`}>
+          <a href={postPath(p)}>
+            <span class="chapeu">{cityOf(p.city).short}</span>
+            <span class="t t-s">{p.title}</span>
+          </a>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+<style>
+  ol {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    counter-reset: ml;
+  }
+  li {
+    counter-increment: ml;
+    border-bottom: 1px solid var(--linha);
+  }
+  li:last-child {
+    border-bottom: 0;
+  }
+  li a {
+    display: grid;
+    grid-template-columns: 34px 1fr;
+    column-gap: 10px;
+    row-gap: 4px;
+    padding: 12px 0;
+  }
+  li a::before {
+    content: counter(ml);
+    grid-row: span 2;
+    font: 700 2rem/0.9 var(--display);
+    color: var(--sirene);
+  }
+</style>

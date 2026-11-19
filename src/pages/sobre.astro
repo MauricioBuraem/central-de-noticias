@@ -1,0 +1,21 @@
+---
+import Page from "../layouts/Page.astro";
+import { CONTACT } from "../lib/config";
+---
+<Page
+  title="Quem somos"
+  description="A Central de Notícias é um portal independente de notícias de Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul de São Paulo."
+  lead="A Central de Notícias é um portal independente que cobre o dia a dia de Embu das Artes, Taboão da Serra, Itapecerica da Serra e da Zona Sul de São Paulo."
+>
+  <p>Publicamos o que acontece nos bairros da região: segurança, trânsito, serviços públicos, política local, eventos e oportunidades. Boa parte das nossas pautas chega de moradores, por vídeo, foto ou mensagem.</p>
+  <h2>Nossos princípios</h2>
+  <ul>
+    <li>Checamos as informações antes de publicar e dizemos com clareza o que ainda não foi confirmado.</li>
+    <li>Tratamos todo investigado como suspeito até decisão da Justiça.</li>
+    <li>Não identificamos menores de idade nem vítimas de violência sexual.</li>
+    <li>Ouvimos o outro lado e publicamos respostas e correções.</li>
+    <li>Conteúdo pago é sempre identificado como publicidade.</li>
+  </ul>
+  <h2>Correções</h2>
+  <p>Encontrou um erro? Fale com a redação pelo WhatsApp <a href={`https://wa.me/${CONTACT.whatsappNumber}`}>{CONTACT.whatsappDisplay}</a>. Corrigimos e informamos a correção na própria matéria.</p>
+</Page>

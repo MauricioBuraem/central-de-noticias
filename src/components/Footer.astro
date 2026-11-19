@@ -1,0 +1,150 @@
+---
+import Logo from "./Logo.astro";
+import Icon from "./Icon.astro";
+import { CATEGORIES, CITIES, CONTACT, SITE, SOCIAL } from "../lib/config";
+const year = new Date().getFullYear();
+---
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="cta-band">
+      <div>
+        <p class="cta-t">Viu alguma coisa acontecendo na sua rua?</p>
+        <p class="cta-s">Mande foto, vídeo ou denúncia. A sua identidade é preservada.</p>
+      </div>
+      <div class="cta-b">
+        <a class="btn btn-whats" href={CONTACT.waLink("Olá, Central! Quero enviar uma notícia:")} target="_blank" rel="noopener"><Icon name="whatsapp" />Enviar pelo WhatsApp</a>
+        <a class="btn btn-ghost light" href={CONTACT.whatsappGroup} target="_blank" rel="noopener">Entrar no grupo</a>
+      </div>
+    </div>
+
+    <div class="cols">
+      <div class="about">
+        <Logo invert />
+        <p>
+          Portal de notícias independente de Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul de São Paulo.
+          Informação local, rápida e responsável, 24 horas por dia.
+        </p>
+        <div class="social">
+          {SOCIAL.filter((s) => s.url).map((s) => (
+            <a href={s.url} target="_blank" rel="noopener" aria-label={s.label} title={s.label}><Icon name={s.key} size={22} /></a>
+          ))}
+        </div>
+      </div>
+      <nav aria-label="Cidades">
+        <p class="h">Cidades</p>
+        <ul>{Object.values(CITIES).map((c) => <li><a href={c.path}>{c.name}</a></li>)}</ul>
+      </nav>
+      <nav aria-label="Editorias">
+        <p class="h">Editorias</p>
+        <ul>
+          {["policia", "transito", "politica", "cidade", "saude", "educacao", "eventos", "empregos"].map((k) => (
+            <li><a href={`/editoria/${k}/`}>{CATEGORIES[k]}</a></li>
+          ))}
+        </ul>
+      </nav>
+      <nav aria-label="Institucional">
+        <p class="h">Central</p>
+        <ul>
+          <li><a href="/sobre/">Quem somos</a></li>
+          <li><a href="/anuncie/">Anuncie</a></li>
+          <li><a href="/envie-sua-noticia/">Envie sua notícia</a></li>
+          <li><a href="/contato/">Contato</a></li>
+          <li><a href="/privacidade/">Privacidade</a></li>
+          <li><a href="/termos/">Termos de uso</a></li>
+          <li><a href="/rss.xml">RSS</a></li>
+        </ul>
+      </nav>
+    </div>
+    <p class="legal">© {year} {SITE.name}. Todos os direitos reservados. WhatsApp da redação: {CONTACT.whatsappDisplay}</p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--tinta);
+    color: #c9ced8;
+    margin-top: 56px;
+    padding: 36px 0 28px;
+    font-size: 0.92rem;
+  }
+  .cta-band {
+    display: grid;
+    gap: 16px;
+    padding: 22px;
+    border-radius: 10px;
+    background: #2a2e37;
+    margin-bottom: 36px;
+  }
+  @media (min-width: 800px) {
+    .cta-band {
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+  .cta-t {
+    margin: 0 0 4px;
+    font: 700 1.5rem/1.1 var(--display);
+    color: #fff;
+  }
+  .cta-s {
+    margin: 0;
+  }
+  .cta-b {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .light {
+    color: #fff;
+    box-shadow: inset 0 0 0 1.5px #555b68;
+  }
+  .cols {
+    display: grid;
+    gap: 28px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .about {
+    grid-column: 1 / -1;
+  }
+  @media (min-width: 900px) {
+    .cols {
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+    }
+    .about {
+      grid-column: auto;
+    }
+  }
+  .about p {
+    max-width: 44ch;
+    margin: 14px 0;
+  }
+  .social {
+    display: flex;
+    gap: 16px;
+  }
+  .social a:hover,
+  ul a:hover {
+    color: #fff;
+  }
+  .h {
+    font: 700 1rem/1 var(--display);
+    color: #fff;
+    margin: 0 0 10px;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  li a {
+    display: inline-block;
+    padding: 5px 0;
+  }
+  .legal {
+    margin: 32px 0 0;
+    padding-top: 18px;
+    border-top: 1px solid #3a3f4a;
+    font-size: 0.8rem;
+    color: #9aa1ae;
+  }
+</style>

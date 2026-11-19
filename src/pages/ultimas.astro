@@ -1,0 +1,18 @@
+---
+import ListPage from "../components/ListPage.astro";
+import { latest, mostRead } from "../lib/db";
+const page = Math.max(1, Number(Astro.url.searchParams.get("pagina") ?? "1") || 1);
+const PER = 20;
+const [rows, top] = await Promise.all([latest(PER + 1, (page - 1) * PER), mostRead(3, 5)]);
+---
+<ListPage
+  heading="Últimas notícias"
+  intro="Tudo o que a Central publicou, do mais recente para o mais antigo."
+  title="Últimas notícias de Embu, Taboão, Itapecerica e Zona Sul"
+  description="As notícias mais recentes de Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul de São Paulo."
+  path="/ultimas/"
+  posts={rows.slice(0, PER)}
+  mostRead={top}
+  page={page}
+  hasNext={rows.length > PER}
+/>
