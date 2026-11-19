@@ -1,38 +1,678 @@
 ---
-import Page from "../layouts/Page.astro";
+// "Anuncie" = the Mídia Kit 2027 rebuilt as a page inside the portal (same colors,
+// type and order as the PDF), ending with a direct line to the sales team.
+import Base from "../layouts/Base.astro";
 import Icon from "../components/Icon.astro";
-import { CONTACT } from "../lib/config";
-const wa = CONTACT.waLink("Olá! Quero anunciar na Central de Notícias. Pode me enviar o mídia kit?");
----
-<Page
-  title="Anuncie na Central de Notícias"
-  description="Anuncie para mais de 61 mil seguidores de Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul. Instagram, WhatsApp, portal e painel de LED."
-  lead="Sua marca na frente de quem mora, trabalha e compra em Embu, Taboão, Itapecerica e Zona Sul."
->
-  <div class="nums">
-    <div><b>61 mil+</b><span>seguidores no Instagram</span></div>
-    <div><b>3,8 mi</b><span>visualizações por mês</span></div>
-    <div><b>57%</b><span>do público tem de 25 a 44 anos</span></div>
-    <div><b>23 mil</b><span>seguidores só em Embu das Artes</span></div>
-  </div>
-  <a class="btn btn-whats big" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" />Pedir o mídia kit 2027</a>
+import { CONTACT, SOCIAL } from "../lib/config";
 
-  <h2>Onde sua marca aparece</h2>
-  <ul>
-    <li><strong>Instagram:</strong> stories, posts no feed, carrosséis e reels produzidos pela nossa equipe.</li>
-    <li><strong>WhatsApp:</strong> divulgação nos grupos e no canal da Central.</li>
-    <li><strong>Portal:</strong> banners na página inicial, nas páginas de cada cidade e dentro das matérias.</li>
-    <li><strong>Painel de LED:</strong> inserções no painel no centro de Embu das Artes.</li>
-    <li><strong>Pacotes:</strong> combinações com desconto para campanhas de 30 dias.</li>
-  </ul>
-  <h2>Publicidade com transparência</h2>
-  <p>Todo conteúdo pago é identificado como publicidade ou parceria. A linha editorial da Central é independente dos anunciantes.</p>
-</Page>
+const wa = CONTACT.waLink("Olá! Vi o mídia kit no site da Central e quero anunciar.");
+const insta = SOCIAL.find((s) => s.key === "instagram")!.url;
+
+const instagram = [
+  { f: "1 Story", e: "Cliente envia imagem ou vídeo pronto, até 1 minuto", p: 100 },
+  { f: "Sequência de 3 Stories", e: "Cliente envia conteúdo pronto, imagem ou vídeo até 1 minuto", p: 250 },
+  { f: "Post estático no Feed", x: "+ 1 Story", e: "Central cria a arte a partir das informações do cliente, ou usa arte pronta", p: 300 },
+  { f: "Carrossel até 5 páginas", x: "+ 1 Story", e: "Central cria as artes, ou usa artes prontas", p: 350 },
+  { f: "Reel", x: "+ 1 Story", e: "Edição e publicação com vídeos e fotos do cliente", p: 400 },
+  { f: "Reel + sequência de 3 Stories", e: "Edição e publicação com vídeos e fotos do cliente", p: 500 },
+];
+const pacotes = [
+  {
+    nome: ["Central", "Digital"],
+    sub: "Presença digital regional",
+    preco: 599,
+    avulso: "R$ 700",
+    itens: ["1 post estático ou vídeo no Feed + 1 Story", "1 sequência de 3 Stories", "Anúncio nos 2 grupos e no Canal do WhatsApp", "Criação da arte pela Central"],
+    rodape: ["30 dias de campanha", "Pagamento antecipado para reservar a agenda."],
+    tema: "escuro",
+  },
+  {
+    nome: ["Central", "Total"],
+    sub: "Digital + mídia externa",
+    preco: 999,
+    avulso: "R$ 1.300",
+    itens: ["1 post estático ou vídeo no Feed + 1 Story", "1 sequência de 3 Stories", "Anúncio nos 2 grupos e no Canal do WhatsApp", "Painel LED, Plano Ouro, por 30 dias (2 inserções a cada 5 minutos)"],
+    rodape: ["Canais digitais + painel físico", "Presença online e no centro de Embu das Artes."],
+    tema: "fogo",
+  },
+];
+const condicoes = [
+  ["Validade", "30 dias a partir do início combinado."],
+  ["Pagamento", "antecipado, para confirmar a reserva da agenda."],
+  ["Materiais", "cliente envia fotos, vídeos, logotipo e informações. A arte do post estático está incluída."],
+  ["Stories", "a sequência de 3 pode ser postada em dias diferentes, a critério do cliente."],
+  ["Impulsionamento", "verba de anúncios pagos não está incluída."],
+  ["Captação", "filmagem presencial, deslocamento, cobertura de evento e produção especial são orçados à parte."],
+  ["Resultados", "não há garantia de visualizações, alcance, leads, vendas ou retorno financeiro."],
+  ["Editorial", "conteúdo contratado não garante cobertura jornalística favorável nem interfere na independência editorial."],
+];
+const brl = (n: number) => `R$ ${n}`;
+---
+<Base
+  title="Anuncie na Central de Notícias: mídia kit 2027"
+  description="Mídia kit 2027 da Central de Notícias: Instagram com mais de 60 mil seguidores, grupos e canal no WhatsApp e painel de LED no centro de Embu das Artes. Formatos, preços e pacotes."
+>
+  <div class="kit">
+    <!-- 1. Capa -->
+    <section class="capa">
+      <div class="wrap capa-in">
+        <div>
+          <p class="capa-marca">Central de Mídia Embu</p>
+          <h1 class="capa-t">Mídia <span>kit</span> <small>2027</small></h1>
+          <p class="capa-s">Sua marca em evidência para quem mora, trabalha e compra em Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul.</p>
+          <div class="ctas">
+            <a class="btn btn-whats big" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" />Falar com o nosso time</a>
+            <a class="btn ghost-light big" href={insta} target="_blank" rel="noopener"><Icon name="instagram" />@centraldenoticias24h</a>
+          </div>
+        </div>
+        <div class="capa-arte" aria-hidden="true">
+          <span class="arco"></span><span class="gota"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. Quem somos -->
+    <section class="claro">
+      <div class="wrap">
+        <p class="kicker">Quem somos</p>
+        <h2 class="mega">Sua marca no centro da <span class="grad">conversa</span></h2>
+        <p class="lead">
+          A <b class="lar">Central de Mídia</b> conecta marcas ao público regional com <b class="lar">conteúdo criado para o Instagram, grupos de WhatsApp e painel de LED.</b>
+          Atuamos em Embu das Artes e região.
+        </p>
+        <div class="stats">
+          <div class="stat"><p class="neon">61<small>mil</small></p><p class="st-l">Seguidores</p><p class="st-s">Perfil principal no Instagram</p></div>
+          <div class="stat"><p class="neon">5<small>–10 mil</small></p><p class="st-l">Views por story</p><p class="st-s">Média de alcance</p></div>
+          <div class="stat"><p class="neon">1<small>mil</small></p><p class="st-l">Membros</p><p class="st-s">2 grupos de WhatsApp + Canal. Membros não equivalem a alcance único.</p></div>
+        </div>
+        <h3 class="h3">Nossos canais</h3>
+        <ul class="canais">
+          <li><b>Central de Notícias</b>: notícias regionais com presença forte no Instagram, com mais de 60 mil seguidores.</li>
+          <li><b>Grupos de WhatsApp e Canal</b>: divulgação direta para moradores da região que acompanham as notícias em tempo real.</li>
+          <li><b>Painel de LED</b>: mídia externa no centro de Embu das Artes, em fluxo intenso de veículos e pedestres.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- 3. Painel LED -->
+    <section class="escuro">
+      <div class="wrap led">
+        <div>
+          <p class="kicker k-escuro">Mídia externa</p>
+          <h2 class="mega led-t">Painel <span>LED</span></h2>
+          <p class="led-p">Um painel digital vertical instalado no centro de Embu das Artes, em frente a um ponto de grande circulação. Sua marca aparece em animação, em alta visibilidade, todos os dias.</p>
+          <ul class="destaques">
+            <li><p class="neon n-m">Centro</p><p>Embu das Artes, em região de comércio e serviços</p></li>
+            <li><p class="neon n-m">Fluxo intenso</p><p>Veículos e pedestres circulam o dia todo, com semáforos que param carros diante do painel</p></li>
+            <li><p class="neon n-m">2 Inserções</p><p>a cada 5 minutos no Plano Ouro</p></li>
+          </ul>
+        </div>
+        <div class="led-lado">
+          <img src="/painel-led.webp" width="704" height="826" alt="Painel de LED da Central no centro de Embu das Artes, à noite" loading="lazy" />
+          <div class="planos">
+            <p class="pl-t">Planos</p>
+            <p><b>Prata</b>: 30 dias, 1 inserção a cada 5 minutos. <b>R$ 400</b></p>
+            <p><b>Ouro</b>: 30 dias, 2 inserções a cada 5 minutos. <b>R$ 600</b></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Preços avulsos -->
+    <section class="claro">
+      <div class="wrap">
+        <p class="kicker">Tabela 2027</p>
+        <h2 class="mega">Preços <span class="grad">avulsos</span></h2>
+        <p class="lead">Valores para contratação individual de cada formato. Para economizar, veja os pacotes logo abaixo.</p>
+
+        <div class="tab">
+          <h3 class="tab-h"><span>Instagram</span></h3>
+          <div class="linhas">
+            {instagram.map((r) => (
+              <div class="linha">
+                <p class="l-f"><b>{r.f}</b>{r.x && <i> {r.x}</i>}</p>
+                <p class="l-e">{r.e}</p>
+                <p class="l-p">{brl(r.p)}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+        <div class="tab">
+          <h3 class="tab-h"><span>WhatsApp</span></h3>
+          <div class="linhas">
+            <div class="linha">
+              <p class="l-f"><b>Anúncio nos 2 grupos e no Canal</b></p>
+              <p class="l-e">Uma divulgação durante a campanha. Grupos e Canal somam cerca de 1.000 membros.</p>
+              <p class="l-p">R$ 150</p>
+            </div>
+          </div>
+        </div>
+        <div class="tab">
+          <h3 class="tab-h"><span>Painel LED · 30 dias</span></h3>
+          <div class="linhas">
+            <div class="linha"><p class="l-f"><b>Plano Prata</b></p><p class="l-e">1 inserção a cada 5 minutos</p><p class="l-p">R$ 400</p></div>
+            <div class="linha"><p class="l-f"><b>Plano Ouro</b></p><p class="l-e">2 inserções a cada 5 minutos</p><p class="l-p">R$ 600</p></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Pacotes -->
+    <section class="claro pac-sec">
+      <div class="wrap">
+        <p class="kicker">Melhor custo-benefício</p>
+        <h2 class="mega">Pacotes <span class="grad">promocionais</span></h2>
+        <div class="pacotes">
+          {pacotes.map((p) => (
+            <article class={`pac ${p.tema}`}>
+              <h3 class="pac-n">{p.nome[0]}<br />{p.nome[1]}</h3>
+              <p class="pac-s">{p.sub}</p>
+              <p class="pac-p"><span>R$</span>{p.preco}</p>
+              <p class="pac-a">Avulso: {p.avulso}</p>
+              <ul>{p.itens.map((i) => <li>{i}</li>)}</ul>
+              <p class="pac-r"><b>{p.rodape[0]}</b>{p.rodape[1]}</p>
+              <a class="btn pac-btn" href={CONTACT.waLink(`Olá! Quero contratar o pacote ${p.nome.join(" ")} (R$ ${p.preco}).`)} target="_blank" rel="noopener"><Icon name="whatsapp" />Quero este pacote</a>
+            </article>
+          ))}
+        </div>
+
+        <h3 class="h3">Condições comerciais</h3>
+        <dl class="cond">
+          {condicoes.map(([k, v]) => <div><dt>{k}:</dt> <dd>{v}</dd></div>)}
+        </dl>
+      </div>
+    </section>
+
+    <!-- 6. Contato -->
+    <section class="fim">
+      <div class="wrap fim-in">
+        <p class="neon fim-t">Vamos conversar?</p>
+        <div class="fim-b">
+          <a class="btn btn-whats big" href={wa} target="_blank" rel="noopener"><Icon name="whatsapp" />WhatsApp {CONTACT.whatsappDisplay}</a>
+          <a class="btn ghost-light big" href={insta} target="_blank" rel="noopener"><Icon name="instagram" />Instagram @centraldenoticias24h</a>
+        </div>
+      </div>
+    </section>
+  </div>
+</Base>
+
 <style>
-  .nums { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; font-family: var(--ui); }
-  @media (min-width: 700px) { .nums { grid-template-columns: repeat(4, 1fr); } }
-  .nums div { padding: 16px; border-radius: 10px; background: var(--asfalto); display: grid; gap: 4px; }
-  .nums b { font: 700 2rem/1 var(--display); color: var(--sirene); }
-  .nums span { font-size: 0.88rem; color: var(--tinta-2); line-height: 1.3; }
-  .big { min-height: 50px; }
+  .kit {
+    --laranja: #ff5a1f;
+    --rosa: #ff1e56;
+    --amarelo: #ffc400;
+    --neon: #ffd21a;
+    --pessego: linear-gradient(180deg, #fff6f1 0%, #ffe5d8 100%);
+    --grafite: linear-gradient(160deg, #262626 0%, #121212 100%);
+    margin-bottom: -56px; /* the dark contact band touches the footer */
+  }
+  .kit section {
+    padding: 56px 0;
+  }
+  .big {
+    min-height: 50px;
+    padding: 12px 22px;
+    font-size: 1rem;
+  }
+  .ghost-light {
+    background: transparent;
+    color: #fff;
+    box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, 0.4);
+  }
+  .ghost-light:hover {
+    box-shadow: inset 0 0 0 1.5px #fff;
+  }
+  .neon {
+    margin: 0;
+    font: 700 3.6rem/0.9 var(--display);
+    color: var(--neon);
+    text-shadow: 0 0 18px rgba(255, 196, 0, 0.55), 0 0 2px rgba(255, 196, 0, 0.9);
+  }
+  .neon small {
+    font-size: 0.5em;
+    margin-left: 2px;
+  }
+  .kicker {
+    margin: 0 0 10px;
+    font: 700 0.8rem/1 var(--ui);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--laranja);
+  }
+  .k-escuro {
+    color: var(--amarelo);
+  }
+  .mega {
+    margin: 0;
+    font: 700 clamp(2.6rem, 1.6rem + 5vw, 5.2rem)/0.92 var(--display);
+    text-transform: uppercase;
+    color: #141414;
+    max-width: 14ch;
+  }
+  .grad {
+    background: linear-gradient(90deg, var(--laranja), var(--rosa) 50%, var(--amarelo));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .lead {
+    max-width: 62ch;
+    margin: 18px 0 0;
+    font-size: 1.08rem;
+    line-height: 1.55;
+    color: #3a3a3a;
+  }
+  .lar {
+    color: var(--laranja);
+  }
+  .h3 {
+    margin: 44px 0 14px;
+    font: 700 1.7rem/1 var(--display);
+    text-transform: uppercase;
+  }
+
+  /* Capa */
+  .capa {
+    background: #000;
+    color: #fff;
+    overflow: hidden;
+  }
+  .capa-in {
+    display: grid;
+    gap: 24px;
+    align-items: center;
+  }
+  @media (min-width: 860px) {
+    .capa-in {
+      grid-template-columns: 1.3fr 1fr;
+    }
+  }
+  .capa-marca {
+    margin: 0 0 8px;
+    font: 600 0.95rem/1 var(--ui);
+    color: #ffb08f;
+  }
+  .capa-t {
+    margin: 0;
+    font: 700 clamp(4rem, 2.5rem + 8vw, 8rem)/0.85 var(--display);
+    text-transform: uppercase;
+  }
+  .capa-t span {
+    color: var(--laranja);
+  }
+  .capa-t small {
+    display: block;
+    font-size: 0.32em;
+    letter-spacing: 0.1em;
+    color: var(--amarelo);
+    margin-top: 8px;
+  }
+  .capa-s {
+    max-width: 46ch;
+    margin: 20px 0 26px;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    color: #e6e6e6;
+  }
+  .ctas,
+  .fim-b {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .capa-arte {
+    position: relative;
+    height: 320px;
+  }
+  .arco {
+    position: absolute;
+    right: -60px;
+    top: -40px;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    border: 46px solid var(--laranja);
+    box-shadow: 0 0 60px rgba(255, 90, 31, 0.35);
+  }
+  .gota {
+    position: absolute;
+    left: 20px;
+    bottom: 0;
+    width: 190px;
+    height: 190px;
+    border-radius: 50% 50% 50% 0;
+    background: linear-gradient(135deg, var(--amarelo), var(--laranja) 55%, var(--rosa));
+    transform: rotate(-45deg);
+  }
+  @media (max-width: 859px) {
+    .capa-arte {
+      display: none;
+    }
+  }
+
+  /* Seções claras */
+  .claro {
+    background: var(--pessego);
+  }
+  .stats {
+    display: grid;
+    gap: 16px;
+    margin-top: 34px;
+  }
+  @media (min-width: 760px) {
+    .stats {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  .stat {
+    padding: 26px 24px;
+    border-radius: 18px;
+    background: var(--grafite);
+    box-shadow: 0 0 0 1px rgba(255, 90, 31, 0.45), 0 10px 30px rgba(255, 90, 31, 0.18);
+  }
+  .st-l {
+    margin: 14px 0 6px;
+    font: 700 0.85rem/1 var(--ui);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #fff;
+  }
+  .st-s {
+    margin: 0;
+    font-size: 0.88rem;
+    color: #a8a8a8;
+  }
+  .canais {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 12px;
+    max-width: 70ch;
+    font-size: 1.04rem;
+    line-height: 1.55;
+  }
+
+  /* Painel LED */
+  .escuro {
+    background: radial-gradient(120% 80% at 80% 100%, #3a1408 0%, #141414 55%, #0b0b0b 100%);
+    color: #e9e9e9;
+  }
+  .led {
+    display: grid;
+    gap: 36px;
+  }
+  @media (min-width: 900px) {
+    .led {
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+    }
+  }
+  .led-t {
+    color: #fff;
+  }
+  .led-t span {
+    color: var(--laranja);
+    text-shadow: 0 0 22px rgba(255, 90, 31, 0.55);
+  }
+  .led-p {
+    max-width: 48ch;
+    margin: 18px 0 30px;
+    font-size: 1.05rem;
+    line-height: 1.6;
+  }
+  .destaques {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 20px;
+  }
+  .destaques li {
+    padding-left: 18px;
+    border-left: 6px solid var(--laranja);
+  }
+  .n-m {
+    font-size: 2.4rem;
+  }
+  .destaques li p:last-child {
+    margin: 6px 0 0;
+    color: #bdbdbd;
+  }
+  .led-lado {
+    position: relative;
+  }
+  .led-lado img {
+    width: min(100%, 460px);
+    margin: 0 auto;
+    border-radius: 14px;
+  }
+  .planos {
+    position: relative;
+    max-width: 420px;
+    margin: -60px auto 0;
+    padding: 22px 24px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--laranja), var(--rosa));
+    color: #fff;
+    box-shadow: 0 0 40px rgba(255, 30, 86, 0.4);
+  }
+  .planos p {
+    margin: 8px 0 0;
+    line-height: 1.5;
+  }
+  .planos .pl-t {
+    margin: 0 0 4px;
+    font: 700 1.6rem/1 var(--display);
+    text-transform: uppercase;
+  }
+
+  /* Tabelas */
+  .tab {
+    margin-top: 36px;
+  }
+  .tab-h {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin: 0 0 6px;
+    font: 700 1.7rem/1 var(--display);
+    text-transform: uppercase;
+  }
+  .tab-h::after {
+    content: "";
+    flex: 1;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--laranja), var(--rosa) 50%, var(--amarelo));
+  }
+  .linha {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+  }
+  .linha p {
+    margin: 0;
+  }
+  .l-f {
+    font-size: 1rem;
+  }
+  .l-f i {
+    color: #555;
+  }
+  .l-e {
+    grid-column: 1;
+    font-size: 0.9rem;
+    color: #5a5a5a;
+  }
+  .l-p {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font: 700 1.6rem/1 var(--display);
+    color: var(--laranja);
+    white-space: nowrap;
+  }
+  @media (min-width: 760px) {
+    .linha {
+      grid-template-columns: 300px 1fr auto;
+      align-items: center;
+    }
+    .l-e {
+      grid-column: 2;
+    }
+    .l-p {
+      grid-column: 3;
+      grid-row: 1;
+    }
+  }
+
+  /* Pacotes */
+  .pac-sec {
+    padding-top: 8px !important;
+    background: linear-gradient(180deg, #ffe5d8 0%, #fff6f1 100%) !important;
+  }
+  .pacotes {
+    display: grid;
+    gap: 20px;
+    margin-top: 32px;
+  }
+  @media (min-width: 820px) {
+    .pacotes {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .pac {
+    display: flex;
+    flex-direction: column;
+    padding: 30px 28px;
+    border-radius: 20px;
+    color: #fff;
+  }
+  .pac.escuro {
+    background: var(--grafite);
+    box-shadow: 0 0 0 1px rgba(255, 196, 0, 0.5), 0 12px 34px rgba(0, 0, 0, 0.25);
+  }
+  .pac.fogo {
+    background: linear-gradient(150deg, #ffc400 0%, #ff6a1f 35%, #ff1e56 100%);
+    box-shadow: 0 12px 40px rgba(255, 30, 86, 0.35);
+  }
+  .pac-n {
+    margin: 0;
+    font: 700 2.8rem/0.95 var(--display);
+    text-transform: uppercase;
+  }
+  .pac-s {
+    margin: 8px 0 0;
+    font: 700 0.8rem/1 var(--ui);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  .pac-p {
+    margin: 22px 0 0;
+    font: 700 5.6rem/0.85 var(--display);
+    color: var(--neon);
+    text-shadow: 0 0 22px rgba(255, 196, 0, 0.55);
+  }
+  .fogo .pac-p {
+    color: #fff;
+    text-shadow: 0 0 22px rgba(255, 255, 255, 0.6);
+  }
+  .pac-p span {
+    font-size: 0.3em;
+    vertical-align: top;
+    margin-right: 4px;
+  }
+  .pac-a {
+    margin: 10px 0 18px;
+    font-size: 0.9rem;
+    opacity: 0.85;
+  }
+  .pac ul {
+    list-style: none;
+    margin: 0 0 22px;
+    padding: 0;
+  }
+  .pac li {
+    position: relative;
+    padding: 12px 0 12px 26px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  }
+  .pac li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 18px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--neon);
+    box-shadow: 0 0 10px var(--neon);
+  }
+  .fogo li::before {
+    background: #fff;
+    box-shadow: 0 0 10px #fff;
+  }
+  .pac-r {
+    margin: auto 0 18px;
+    display: grid;
+    gap: 2px;
+    font-size: 0.9rem;
+  }
+  .pac-r b {
+    font-size: 1.1rem;
+  }
+  .pac-btn {
+    align-self: start;
+    background: #fff;
+    color: #141414;
+  }
+  .pac-btn:hover {
+    background: #ffe9a8;
+  }
+  .cond {
+    display: grid;
+    gap: 10px 36px;
+    margin: 0;
+  }
+  @media (min-width: 820px) {
+    .cond {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  .cond div {
+    font-size: 0.95rem;
+    line-height: 1.5;
+  }
+  .cond dt {
+    display: inline;
+    font-weight: 700;
+  }
+  .cond dd {
+    display: inline;
+    margin: 0;
+  }
+
+  /* Contato */
+  .fim {
+    background: linear-gradient(90deg, #120a08, #1e0f0a);
+    color: #fff;
+  }
+  .fim-in {
+    display: grid;
+    gap: 20px;
+    align-items: center;
+  }
+  @media (min-width: 860px) {
+    .fim-in {
+      grid-template-columns: 1fr auto;
+    }
+  }
+  .fim-t {
+    font-size: clamp(2.4rem, 1.8rem + 2.5vw, 3.6rem);
+    text-transform: uppercase;
+  }
 </style>

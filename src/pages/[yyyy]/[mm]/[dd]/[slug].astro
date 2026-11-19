@@ -26,7 +26,7 @@ const updatedLater = new Date(post.updated_at).getTime() - new Date(post.publish
 const title = post.seo_title ?? post.title;
 const description = post.seo_description ?? post.excerpt ?? stripTags(post.body_html).slice(0, 155);
 const isVideo = post.ig_media_type === "VIDEO";
-const igEmbed = post.ig_permalink ? post.ig_permalink.replace(/\/?$/, "/") + "embed/captioned/" : null;
+const igEmbed = post.ig_permalink ? post.ig_permalink.replace(/\/?$/, "/") + "embed/" : null;
 const [bodyA, bodyB] = splitAfterParagraph(post.body_html, 3);
 const portrait = (post.cover_height ?? 0) > (post.cover_width ?? 1) * 1.05;
 const coverW = 1200;
@@ -178,19 +178,40 @@ if (isVideo && igEmbed && post.cover_path) {
 </Base>
 
 <script>
-  // Video: swap the cover for the Instagram player only when the reader asks for it
+  // Video: swap the cover for the Instagram player only when the reader asks for it.
+  // The embed is the caption-free version, and its header/footer are clipped so the
+  // reader sees only the player (the play still counts as a view on Instagram).
+  const IG_TOP = 54; // profile row at the top of the embed
+  const IG_BOTTOM = 158; // "View more", likes and comment box below the video
   document.querySelectorAll<HTMLButtonElement>("[data-play]").forEach((btn) => {
     btn.addEventListener("click", () => {
       const box = btn.closest<HTMLElement>("[data-embed]");
       if (!box) return;
+      const clip = document.createElement("div");
+      clip.className = "ig-clip";
       const f = document.createElement("iframe");
       f.src = box.dataset.embed!;
       f.title = "Vídeo da notícia no Instagram";
       f.allow = "autoplay; encrypted-media; picture-in-picture; clipboard-write";
       f.setAttribute("allowfullscreen", "");
+      f.setAttribute("scrolling", "no");
       f.loading = "eager";
+      clip.appendChild(f);
       box.classList.add("playing");
-      box.replaceChildren(f);
+      box.replaceChildren(clip);
+      const fit = (total: number) => {
+        f.style.height = `${total}px`;
+        f.style.marginTop = `-${IG_TOP}px`;
+        clip.style.height = `${Math.max(200, total - IG_TOP - IG_BOTTOM)}px`;
+      };
+      fit(Math.round(clip.clientWidth * 1.25) + IG_TOP + IG_BOTTOM); // first guess until Instagram reports its size
+      window.addEventListener("message", (e) => {
+        if (!/instagram\.com$/.test(new URL(e.origin).hostname)) return;
+        try {
+          const d = typeof e.data === "string" ? JSON.parse(e.data) : e.data;
+          if (d?.type === "MEASURE" && d.details?.height) fit(Number(d.details.height));
+        } catch { /* not ours */ }
+      });
     });
   });
 
@@ -339,15 +360,18 @@ if (isVideo && igEmbed && post.cover_path) {
   }
   .capa-media.playing {
     max-height: none;
-    background: #fff;
+    background: #000;
     display: block;
+  }
+  .capa-media :global(.ig-clip) {
+    width: min(100%, 420px);
+    margin: 0 auto;
+    overflow: hidden;
+    background: #000;
   }
   .capa-media :global(iframe) {
     display: block;
     width: 100%;
-    max-width: 540px;
-    height: min(88vh, 860px);
-    margin: 0 auto;
     border: 0;
   }
   figcaption {
