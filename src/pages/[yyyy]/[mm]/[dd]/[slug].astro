@@ -36,7 +36,7 @@ const articleLd: Record<string, unknown> = {
   "@context": "https://schema.org",
   "@type": "NewsArticle",
   mainEntityOfPage: { "@type": "WebPage", "@id": absolute(canonicalPath) },
-  headline: post.title.slice(0, 110),
+  headline: (post.seo_title || post.title).slice(0, 110),
   description,
   image: post.cover_path
     ? [ogImage(post.cover_path), absolute(img(post.cover_path, 1200, 1200)), absolute(img(post.cover_path, 1200, 900))]

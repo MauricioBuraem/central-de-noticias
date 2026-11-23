@@ -123,8 +123,8 @@ export async function search(q: string, limit = 20, offset = 0): Promise<Card[]>
 }
 
 export async function sitemapRows(sinceIso?: string) {
-  let q = supabase.from("posts").select("slug, title, published_at, updated_at, cover_path, city").eq("status", "published");
+  let q = supabase.from("posts").select("slug, title, seo_title, published_at, updated_at, cover_path, city").eq("status", "published");
   if (sinceIso) q = q.gte("published_at", sinceIso);
   const { data } = await q.order("published_at", { ascending: false }).limit(5000);
-  return (data ?? []) as Pick<Post, "slug" | "title" | "published_at" | "updated_at" | "cover_path" | "city">[];
+  return (data ?? []) as Pick<Post, "slug" | "title" | "seo_title" | "published_at" | "updated_at" | "cover_path" | "city">[];
 }

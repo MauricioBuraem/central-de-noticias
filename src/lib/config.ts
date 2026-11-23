@@ -2,7 +2,9 @@
 export const SITE = {
   name: "Central de Notícias",
   shortName: "Central",
-  url: (import.meta.env.PUBLIC_SITE_URL as string | undefined) ?? "https://centraldenoticias24h.com",
+  // Fixed on purpose: PUBLIC_SITE_URL on Netlify still pointed at the old netlify.app address,
+  // which put that address in canonicals, sitemaps and schema.
+  url: "https://centraldenoticias24h.com",
   description:
     "Notícias de Embu das Artes, Taboão da Serra, Itapecerica da Serra e Zona Sul de São Paulo. Polícia, trânsito, política, cidade e serviços, 24 horas por dia.",
   locale: "pt_BR",

@@ -8,6 +8,13 @@
 [images]
   remote_images = ['https://gsdqhyltmjbzdgprblmy\.supabase\.co/storage/v1/object/public/.*']
 
+# The old netlify.app address must not compete with the real domain in Google.
+[[redirects]]
+  from = "https://centraldenoticias24h.netlify.app/*"
+  to = "https://centraldenoticias24h.com/:splat"
+  status = 301
+  force = true
+
 [[headers]]
   for = "/_astro/*"
   [headers.values]
